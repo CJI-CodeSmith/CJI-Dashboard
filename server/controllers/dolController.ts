@@ -23,11 +23,11 @@ interface DOLResponse {
 
 // TODO: change filtering to start at 2021-1-1 and go forward from there
 //variable to get the set the year to start with
-const startYear = new Date();
-// setFullYear method passing in (current year - 5) to start from 5 years ago
-startYear.setFullYear(startYear.getFullYear() - 5);
-// convert startYear to string for passing in to fetch request
-const dateString = startYear.toISOString().split(".")[0];
+// const startYear = new Date();
+// // setFullYear method passing in (current year - 5) to start from 5 years ago
+// startYear.setFullYear(startYear.getFullYear() - 5);
+// // convert startYear to string for passing in to fetch request
+// const dateString = startYear.toISOString().split(".")[0];
 
 // create the object to filter by both naics code and starting date
 const filterObj = {
@@ -47,6 +47,7 @@ const filterObj = {
 
 //object to hold all the search params to pass in to fetch request
 // * current limit is set to 200, but we can change if we want more/less at a time
+// TODO: error on "process" below mentions tsconfig file. We don't have that yet. Also, what about a compiler?
 const params = new URLSearchParams({
   "X-API-KEY": process.env.DOL_API_KEY!,
   limit: "200",
@@ -62,9 +63,7 @@ const url = `https://apiprod.dol.gov/v4/get/OSHA/inspection/json?${params}`;
 export async function fetchInspections() {
   try {
     const response = await fetch(url);
-    const text = await response.text();
-    console.log("Raw response:", text.slice(0, 500));
-    const json = JSON.parse(text) as DOLResponse;
+    const json = (await response.json()) as DOLResponse;
     return json.data;
   } catch (err) {
     console.error(err);
