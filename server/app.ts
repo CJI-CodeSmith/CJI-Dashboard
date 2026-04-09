@@ -1,3 +1,4 @@
+// Configures the Express app: middleware (cors, json parsing) and global error handler
 
 import express, {Request, Response, NextFunction} from 'express';
 import cors from 'cors';
