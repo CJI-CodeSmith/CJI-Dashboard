@@ -3,7 +3,6 @@
 import "dotenv/config";
 
 // typescript interface for the expected response from dol API get request
-// TODO: add extra fields Avalon requested
 interface DOLResponse {
   data: Array<{
     estab_name: string;
@@ -21,7 +20,6 @@ interface DOLResponse {
   }>;
 }
 
-// TODO: change filtering to start at 2021-1-1 and go forward from there
 //variable to get the set the year to start with
 // const startYear = new Date();
 // // setFullYear method passing in (current year - 5) to start from 5 years ago
@@ -54,7 +52,8 @@ const params = new URLSearchParams({
   offset: "0",
   fields:
     "estab_name,site_address,site_city,site_state,site_zip,owner_type,safety_hlth,naics_code,insp_type,union_status,nr_in_estab,open_date",
-  sort: "asc",
+  sort_by: "open_date",
+  sort: "asc",//TODO: Dbl check why DESC breaks our sort
   filter_object: JSON.stringify(filterObj),
 });
 
@@ -63,10 +62,26 @@ const url = `https://apiprod.dol.gov/v4/get/OSHA/inspection/json?${params}`;
 export async function fetchInspections() {
   try {
     const response = await fetch(url);
-    const json = (await response.json()) as DOLResponse;
-    return json.data;
+    if (!response.ok) {
+      throw new Error("Issue getting response from fetchInspections");
+    }
+
+    const inspection = (await response.json()) as DOLResponse;
+    return inspection.data;
   } catch (err) {
     console.error(err);
     throw err;
   }
 }
+
+// // Omitting options
+// const error1 = new Error("Error message");
+// console.log("cause" in error1); // false
+
+// // Passing a primitive value
+// const error2 = new Error("Error message", "");
+// console.log("cause" in error2); // false
+
+// // Passing an object without a cause property
+// const error3 = new Error("Error message", { details: "http error" });
+// console.log("cause" in error3); // false
