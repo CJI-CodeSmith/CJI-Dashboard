@@ -4,6 +4,8 @@ import fs from "fs";
 import path from "path";
 import "dotenv/config";
 
+import { scrubData } from "../utils/dataScrubber";
+
 // typescript interface for the expected response from dol API get request
 interface DOLResponse {
   data: Array<{
@@ -75,9 +77,10 @@ try {
   console.log("Fetched data has been written into rawData.json");
 
   // Invoke data scrubbing helper function here so each retrieval is automatically scrubbed and ready for use?
+scrubData();
 
   res.status(200).json({
-    message: " Successfully extracted DOL Data // and transformed data.",
+    message: " Successfully extracted DOL Data to rawData.json, scrubbed it and written to cleanedData.json",
     totalRecords: records.length
   });
 } catch (err:any) {
