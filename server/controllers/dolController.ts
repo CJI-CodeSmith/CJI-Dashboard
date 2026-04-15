@@ -1,5 +1,7 @@
 // Fetches OSHA inspection data from the DOL API and returns it as parsed JSON
-
+import { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 import "dotenv/config";
 
 // typescript interface for the expected response from dol API get request
@@ -27,25 +29,21 @@ interface DOLResponse {
 // // convert startYear to string for passing in to fetch request
 // const dateString = startYear.toISOString().split(".")[0];
 
-// create the object to filter by both naics code and starting date
-const filterObj = {
-  and: [
-    {
-      field: "naics_code",
-      operator: "eq",
-      value: "518210",
-    },
-    {
-      field: "open_date",
-      operator: "gt",
-      value: "2021-01-01T00:00:00",
-    },
-  ],
-};
+export const fetchOshaData = async (req: Request, res: Response) => {
+  console.log("Starting DOL fetch...")
+
+  const filterObj = {
+    and: [
+      { field: "naics_code", operator: "eq", value: "518210" },
+      { field: "open_date", operator: "gt", value: "2021-01-01T00:00:00" },
+    ],
+  };
 
 //object to hold all the search params to pass in to fetch request
 // * current limit is set to 200, but we can change if we want more/less at a time
 // TODO: error on "process" below mentions tsconfig file. We don't have that yet. Also, what about a compiler?
+
+// Is storing our API key in params a security flaw? Would we not be storing the uncoded key in our url in ${params}?
 const params = new URLSearchParams({
   "X-API-KEY": process.env.DOL_API_KEY!,
   limit: "200",
@@ -59,20 +57,53 @@ const params = new URLSearchParams({
 
 const url = `https://apiprod.dol.gov/v4/get/OSHA/inspection/json?${params}`;
 
-export async function fetchInspections() {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Issue getting response from fetchInspections");
-    }
 
-    const inspection = (await response.json()) as DOLResponse;
-    return inspection.data;
-  } catch (err) {
-    console.error(err);
-    throw err;
+try {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`DOL API fetch failed: ${response.status} ${response.statusText}`);
   }
-}
+  const inspection = (await response.json()) as DOLResponse;
+  const records = inspection.data || [];
+  // instead of sorting by desc we can just check records.length to see if its larger for now since its in an array.
+  console.log( `DOL API fetch successful with: ${records.length} records`);
+
+  const rawFilePath = path.join(__dirname, "../data/rawData.json")
+
+  fs.writeFileSync(rawFilePath, JSON.stringify(records, null, 2));
+  console.log("Fetched data has been written into rawData.json");
+
+  // Invoke data scrubbing helper function here so each retrieval is automatically scrubbed and ready for use?
+
+  res.status(200).json({
+    message: " Successfully extracted DOL Data // and transformed data.",
+    totalRecords: records.length
+  });
+} catch (err:any) {
+  console.error(err);
+  res.status(500).json({
+    error: "Error fetching DOL data",
+    details: err.message,
+  });
+}};
+
+
+// export async function fetchInspections() {
+//   try {
+//     const response = await fetch(url);
+//     if (!response.ok) {
+//       throw new Error("Issue getting response from fetchInspections");
+//     }
+
+//     const inspection = (await response.json()) as DOLResponse;
+//     console.log(inspection.data);
+//     return inspection.data;
+//   } catch (err) {
+//     console.error(err); 
+//     throw err;
+//   }
+// }
 
 // // Omitting options
 // const error1 = new Error("Error message");
