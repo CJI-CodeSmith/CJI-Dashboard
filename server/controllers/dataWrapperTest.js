@@ -28,6 +28,7 @@ async function buildDatawrapperChart(title, csvString) {
         if (!chartData.id) {
             throw new Error('Chart created but no ID returned from Datawrapper.');
         }
+        console.log('CHART DATA ', chartData);
         const chartId = chartData.id;
         console.log(`Chart created with ID: ${chartId}`);
         // 2. Upload the CSV

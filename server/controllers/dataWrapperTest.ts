@@ -33,7 +33,7 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     if (!chartData.id) {
       throw new Error('Chart created but no ID returned from Datawrapper.');
     }
-
+    console.log('CHART DATA ', chartData);
     const chartId = chartData.id;
     console.log(`Chart created with ID: ${chartId}`);
 
@@ -70,7 +70,6 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     console.error('Process stopped:', error);
   }
 }
-//TODO make get chart controller and an update chart controller
 
 async function getChart(id: string) {
   try {
