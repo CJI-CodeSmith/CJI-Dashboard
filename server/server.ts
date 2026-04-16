@@ -9,7 +9,7 @@ import dolRoutes from './routes/dolRoutes.ts';
 const PORT = process.env.PORT || 8888;
 
 // setup for DOL routes
-app.use(dolRoutes);
+app.use('/api', dolRoutes);
 
 // setup for Datawrapper routes
 
