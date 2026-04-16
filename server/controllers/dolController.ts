@@ -3,7 +3,7 @@
 import "dotenv/config";
 
 // typescript interface for the expected response from dol API get request
-interface DOLResponse {
+export interface DOLResponse {
   data: Array<{
     estab_name: string;
     site_address: string;
@@ -20,12 +20,7 @@ interface DOLResponse {
   }>;
 }
 
-//variable to get the set the year to start with
-// const startYear = new Date();
-// // setFullYear method passing in (current year - 5) to start from 5 years ago
-// startYear.setFullYear(startYear.getFullYear() - 5);
-// // convert startYear to string for passing in to fetch request
-// const dateString = startYear.toISOString().split(".")[0];
+
 
 // create the object to filter by both naics code and starting date
 const filterObj = {
@@ -74,14 +69,4 @@ export async function fetchInspections() {
   }
 }
 
-// // Omitting options
-// const error1 = new Error("Error message");
-// console.log("cause" in error1); // false
 
-// // Passing a primitive value
-// const error2 = new Error("Error message", "");
-// console.log("cause" in error2); // false
-
-// // Passing an object without a cause property
-// const error3 = new Error("Error message", { details: "http error" });
-// console.log("cause" in error3); // false
