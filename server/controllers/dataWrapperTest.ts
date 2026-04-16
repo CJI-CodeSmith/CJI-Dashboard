@@ -1,7 +1,8 @@
-// import buildDatawrapperChart from './dataWrapperController';
-const API_KEY =
+// import buildDatawrapperChart from './dataWrapperController.js';
+import 'dotenv/config';
+// const DWAPI_KEY = process.env.DWAPI_KEY;
+const DWAPI_KEY =
   'Rg5hae0GdNknh56zUDtRMQvVBopnyWIfXXbThl9NlLM0AeXfMXe0HpD6ON1j5ctb';
-
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
 async function buildDatawrapperChart(title: string, csvString: string) {
@@ -11,7 +12,7 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     const createRes = await fetch(`${BASE_URL}/charts`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: `Bearer ${DWAPI_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ title, type: 'd3-bars' }), //here is where the different chart types come into place
@@ -40,7 +41,7 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     const uploadRes = await fetch(`${BASE_URL}/charts/${chartId}/data`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${API_KEY}`,
+        Authorization: `Bearer ${DWAPI_KEY}`,
         'Content-Type': 'text/csv',
       },
       body: csvString,
@@ -52,14 +53,14 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     // 3. Publish
     const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${API_KEY}` },
+      headers: { Authorization: `Bearer ${DWAPI_KEY}` },
     });
 
     const publishData = (await publishRes.json()) as {
       url: string;
       publicUrl?: string;
     };
-
+    console.log('PUBLISH DATA ', publishData);
     // Note: Datawrapper v3 often uses 'publicUrl' or 'url' depending on the state
     const finalUrl = publishData.publicUrl || publishData.url;
 
@@ -69,19 +70,114 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     console.error('Process stopped:', error);
   }
 }
+//TODO make get chart controller and an update chart controller
+
+async function getChart(id: string) {
+  try {
+    const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${DWAPI_KEY}`, accept: '*/*' },
+    });
+    if (!getChartResponse.ok) {
+      throw new Error(
+        "Issue getting response from dataWrapperController's getChart",
+      );
+    }
+    const data = await getChartResponse.json();
+    console.log('GETCHART RESPONSE ', getChartResponse);
+
+    // 1. Get the direct link to the interactive chart
+    const publicUrl = data.publicUrl;
+
+    // 2. Get the PNG/Image version (handy for Slack/Emails)
+    const imageUrl = `https://datawrapper.dwcdn.net/${id}/full.png`;
+
+    console.log('--- CHART FOUND ---');
+    console.log('Interactive Link:', publicUrl);
+    console.log('Static Image:', imageUrl);
+
+    return publicUrl;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/**FROM GEMINI
+ * UPDATED: PATCH/PUT function to modify an existing chart
+ * @param id - The chart ID (e.g., 'CeZ9e')
+ * @param updates - Object containing metadata updates (title, theme, etc.)
+ * @param newCsvString - Optional new CSV data to upload
+ */
+async function updateChart(id: string, updates: object, newCsvString?: string) {
+  try {
+    // 1. PATCH the metadata (Title, Chart Type, etc.)
+    const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${DWAPI_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+
+    if (!patchRes.ok)
+      throw new Error(`Metadata update failed: ${await patchRes.text()}`);
+    console.log('Metadata updated successfully.');
+
+    // 2. PUT the new data (Only if provided)
+    if (newCsvString) {
+      const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${DWAPI_KEY}`,
+          'Content-Type': 'text/csv',
+        },
+        body: newCsvString,
+      });
+      if (!uploadRes.ok) throw new Error('Data upload failed');
+      console.log('New data uploaded successfully.');
+    }
+
+    // 3. RE-PUBLISH (Mandatory to see changes live!)
+    const publishRes = await fetch(`${BASE_URL}/charts/${id}/publish`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${DWAPI_KEY}` },
+    });
+
+    if (!publishRes.ok) throw new Error('Re-publish failed');
+
+    const publishData = await publishRes.json();
+
+    // FALLBACK LOGIC: If publicUrl is missing in the publish response,
+    // we use the standard CDN pattern or get it from the chart object.
+    const finalUrl =
+      publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
+
+    console.log(`Update Live! View here: ${finalUrl}`);
+    return finalUrl;
+  } catch (error) {
+    console.error('Update stopped:', error);
+  }
+}
 
 const myCsvData = `Year,Score
 2024,85
 2025,92
 2026,100`;
 
-// const myCsvData = `
-// estab_name,site_city,site_state,open_date,insp_type,safety_hlth,union_status,naics_code
-// ACCESS INFORMATION MANAGEMENT INC.,SALT LAKE CITY,UT,2022-04-08,Complaint,S,B,518210,,,K,Programmed Other`
-// "ALLEVITY, INC.",CHICO,CA,2026-03-04,Complaint,H,B,518210,,,L,Other
-// AMAZON,NORTH JACKSON,OH,2022-02-14,Complaint,S,B,518210,,,M,Fatality - Catastrophe
-// AMAZON,PRUDHOE BAY,AK,2023-10-11,Complaint,S,B,518210,,,N,Unprogrammed Emphasis
-
 // Call the function
 // buildDatawrapperChart('My Progress Report', myCsvData);
-buildDatawrapperChart('Attempting bars', myCsvData);
+// buildDatawrapperChart('Attempting bars', myCsvData);
+
+// getChart(`CeZ9e`);
+
+// --- EXAMPLE USAGE ---
+updateChart(
+  'CeZ9e',
+  { title: 'Updated Progress Report' },
+  `Year,Score\n2024,900\n2025,95\n2026,110`,
+);
+
+//Changing chart's title, type, or theme = changing the metadata
+
+//Updating the chart means the number at the end increments, so it's best to exclude the link with '/1/' in it.

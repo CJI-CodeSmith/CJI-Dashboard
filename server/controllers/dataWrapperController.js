@@ -1,6 +1,6 @@
 // Fetches data from the Data Wrapper API and returns it for use by the dashboard
 import 'dotenv/config';
-const API_KEY = 'Rg5hae0GdNknh56zUDtRMQvVBopnyWIfXXbThl9NlLM0AeXfMXe0HpD6ON1j5ctb';
+const DWAPI_KEY = 'Rg5hae0GdNknh56zUDtRMQvVBopnyWIfXXbThl9NlLM0AeXfMXe0HpD6ON1j5ctb';
 const BASE_URL = `https://api.datawrapper.de/v3/charts`;
 async function getChart() {
     try {
@@ -13,46 +13,58 @@ async function getChart() {
         console.error(err);
     }
 }
-//From gemini
 async function buildDatawrapperChart(title, csvString) {
     try {
-        // STEP 1: Create the chart "Frame"
+        // 1. Create the chart
+        //whose API key are we using for prod? will Avalon have her own?
         const createRes = await fetch(`${BASE_URL}/charts`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`,
-                'Content-Type': 'application/json'
+                Authorization: `Bearer ${DWAPI_KEY}`,
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                title: title,
-                type: 'd3-lines' // You can change this to 'd3-bars', 'tables', etc.
-            })
+            body: JSON.stringify({ title, type: 'd3-bars' }), //here is where the different chart types come into place
         });
-        const chart = await createRes.json();
-        const chartId = chart.id;
+        console.log('made it to createRes');
+        // Check if the response is actually okay
+        if (!createRes.ok) {
+            const errorText = await createRes.text();
+            console.log('res not okay');
+            throw new Error(`Create failed: ${errorText}`);
+        }
+        console.log('createRes: ', createRes);
+        const chartData = (await createRes.json());
+        // Check if ID exists before continuing
+        if (!chartData.id) {
+            throw new Error('Chart created but no ID returned from Datawrapper.');
+        }
+        const chartId = chartData.id;
         console.log(`Chart created with ID: ${chartId}`);
-        // STEP 2: Upload the "Furniture" (CSV Data)
-        // Teacher Note: We send the CSV as plain text, NOT JSON.
-        await fetch(`${BASE_URL}/charts/${chartId}/data`, {
+        // 2. Upload the CSV
+        const uploadRes = await fetch(`${BASE_URL}/charts/${chartId}/data`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${API_KEY}`,
-                'Content-Type': 'text/csv'
+                Authorization: `Bearer ${DWAPI_KEY}`,
+                'Content-Type': 'text/csv',
             },
-            body: csvString
+            body: csvString,
         });
+        if (!uploadRes.ok)
+            throw new Error('Upload failed');
         console.log('Data uploaded successfully.');
-        // STEP 3: Turn on the "Lights" (Publish)
+        // 3. Publish
         const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${API_KEY}` }
+            headers: { Authorization: `Bearer ${DWAPI_KEY}` },
         });
-        const publishData = await publishRes.json();
-        console.log(`Chart is live at: ${publishData.url}`);
-        return publishData.url;
+        const publishData = (await publishRes.json());
+        // Note: Datawrapper v3 often uses 'publicUrl' or 'url' depending on the state
+        const finalUrl = publishData.publicUrl || publishData.url;
+        console.log(`Chart is live at: ${finalUrl}`);
+        return finalUrl;
     }
     catch (error) {
-        console.error('Failed to create chart:', error);
+        console.error('Process stopped:', error);
     }
 }
 export default buildDatawrapperChart;
