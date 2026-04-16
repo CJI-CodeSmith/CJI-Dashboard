@@ -1,8 +1,7 @@
 // import buildDatawrapperChart from './dataWrapperController.js';
 import 'dotenv/config';
 // const DWAPI_KEY = process.env.DWAPI_KEY;
-const DWAPI_KEY =
-  'Rg5hae0GdNknh56zUDtRMQvVBopnyWIfXXbThl9NlLM0AeXfMXe0HpD6ON1j5ctb';
+const DWAPI_KEY = '';
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
 async function buildDatawrapperChart(title: string, csvString: string) {
