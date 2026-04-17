@@ -4,7 +4,11 @@ import 'dotenv/config';
 const DWAPI_KEY = '';
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
-async function buildDatawrapperChart(title: string, csvString: string) {
+async function buildDatawrapperChart(
+  title: string,
+  csvString: string,
+  chartType = 'd3-bars',
+) {
   try {
     // 1. Create the chart
     //whose API key are we using for prod? will Avalon have her own?
@@ -14,7 +18,7 @@ async function buildDatawrapperChart(title: string, csvString: string) {
         Authorization: `Bearer ${DWAPI_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, type: 'd3-bars' }), //here is where the different chart types come into place
+      body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into place
     });
     console.log('made it to createRes');
 
@@ -69,7 +73,7 @@ async function buildDatawrapperChart(title: string, csvString: string) {
     console.error('Process stopped:', error);
   }
 }
-
+//TODO add /data chart metadata
 async function getChart(id: string) {
   try {
     const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
@@ -161,20 +165,20 @@ async function updateChart(id: string, updates: object, newCsvString?: string) {
 const myCsvData = `Year,Score
 2024,85
 2025,92
-2026,100`;
+2026,100, 80`;
 
 // Call the function
-// buildDatawrapperChart('My Progress Report', myCsvData);
+buildDatawrapperChart('My Progress Report', myCsvData, 'd3-donuts');
 // buildDatawrapperChart('Attempting bars', myCsvData);
 
-// getChart(`CeZ9e`);
+// getChart(`bHAkz`);
 
 // --- EXAMPLE USAGE ---
-updateChart(
-  'CeZ9e',
-  { title: 'Updated Progress Report' },
-  `Year,Score\n2024,900\n2025,95\n2026,110`,
-);
+// updateChart(
+//   'bHAkz',
+//   { title: 'Updated Progress Report' },
+//   `Year,Score\n2024,90\n2025,95\n2026,110`,
+// );
 
 //Changing chart's title, type, or theme = changing the metadata
 
