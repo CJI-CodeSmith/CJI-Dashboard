@@ -7,7 +7,7 @@ const BASE_URL = `https://api.datawrapper.de/v3`;
 async function buildDatawrapperChart(
   title: string,
   csvString: string,
-  chartType = 'd3-bars',
+  chartType: string = 'd3-bars',
 ) {
   try {
     // 1. Create the chart
