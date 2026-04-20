@@ -10,7 +10,7 @@ interface HeaderProps {
     csvData : string;
 }
 
-export default function Header({csvData}): React.FC<HeaderProps>{
+export default function Header({csvData}:HeaderProps) {
     return(
         <header>
         <h1>OSHA Data Center Inspection Dashboard</h1>
