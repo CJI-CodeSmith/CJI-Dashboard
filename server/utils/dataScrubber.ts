@@ -14,6 +14,7 @@ open_date: yyyy-mm-dd format
 
 import fs from "fs";
 import path from "path";
+import { json2csv } from "json-2-csv";
 
 // Define replacement for inspection type letter codes 
 const inspTypes: Record<string, string> = {
@@ -23,9 +24,14 @@ const inspTypes: Record<string, string> = {
     'D': 'Monitoring',
     'E': 'Variance',
     'F': 'Follow-Up',
+    'G': 'Unprogrammed Related',
     'H': 'Planned',
     'I': 'Programmed Related',
-    'J': 'Unprogrammed Other'
+    'J': 'Unprogrammed Other',
+    'K': 'Programmed Other',
+    'L': 'Other',
+    'M': 'Fatality/Catastrophe',
+    'N': 'Unprogrammed Emphasis'
 };
 // define replacement for owner_type letter codes
 const ownerTypes: Record<string, string> ={
@@ -47,8 +53,9 @@ const cleanEstabName = (rawName: string): string => {
 export const scrubData = (): void => {
     // rawFilePath = input file
     // cleanedFilePath = output file
-    const rawFilePath = path.join(__dirname, "../data/rawData.json")
+    const rawFilePath = path.join(__dirname, "../data/rawData.json");
     const cleanedFilePath = path.join(__dirname, "../data/cleanedData.json");
+    const csvFilePath = path.join(__dirname, "../data/csvData.csv");
 
     console.log("Data scrubbing started...");
     // guard clause for if input file is not detected
@@ -89,12 +96,16 @@ const cleanedRecords = records.map((row: any) => {
             "Inspection Focus": safetyFocus,
             "NAICS Code": row.naics_code,
             "Inspection Purpose": InspectionType,
-            "Unionized": unionStatus,
+            "Union Status": unionStatus,
             "Employee Count": row.nr_in_estab,
             "Inspection Start Date": formatDate
     }
 })
 // We write our cleaned data to its file path.
-  fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
+fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
     console.log("Data scrubbing completed. Cleaned data has been written into cleanedData.json");
+
+
+const csv =  json2csv(cleanedRecords);
+fs.writeFileSync(csvFilePath, csv);
 };
