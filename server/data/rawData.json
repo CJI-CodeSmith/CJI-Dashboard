@@ -364,20 +364,6 @@
     "open_date": "2022-08-16T00:00:00"
   },
   {
-    "estab_name": "EDGECONNEX ATLANTA HOLDINGS LLC",
-    "site_address": "1101 DONNELLY AVE SW",
-    "site_city": "ATLANTA",
-    "site_state": "GA",
-    "site_zip": "30310",
-    "owner_type": "A",
-    "safety_hlth": "S",
-    "naics_code": "518210",
-    "insp_type": "H",
-    "union_status": "B",
-    "nr_in_estab": "10",
-    "open_date": "2022-09-01T00:00:00"
-  },
-  {
     "estab_name": "65332 - HORIZON MINING LLC",
     "site_address": "325 PRISON CONNECTOR RD",
     "site_city": "STEPHENS",
@@ -389,6 +375,20 @@
     "insp_type": "B",
     "union_status": "B",
     "nr_in_estab": "32",
+    "open_date": "2022-09-01T00:00:00"
+  },
+  {
+    "estab_name": "EDGECONNEX ATLANTA HOLDINGS LLC",
+    "site_address": "1101 DONNELLY AVE SW",
+    "site_city": "ATLANTA",
+    "site_state": "GA",
+    "site_zip": "30310",
+    "owner_type": "A",
+    "safety_hlth": "S",
+    "naics_code": "518210",
+    "insp_type": "H",
+    "union_status": "B",
+    "nr_in_estab": "10",
     "open_date": "2022-09-01T00:00:00"
   },
   {
@@ -952,20 +952,6 @@
     "open_date": "2024-12-19T00:00:00"
   },
   {
-    "estab_name": "EPSILON DATA MANAGEMENT, LLC",
-    "site_address": "1240 NORTH AVENUE WEST",
-    "site_city": "WEST CHICAGO",
-    "site_state": "IL",
-    "site_zip": "60185",
-    "owner_type": "A",
-    "safety_hlth": "S",
-    "naics_code": "518210",
-    "insp_type": "C",
-    "union_status": "B",
-    "nr_in_estab": "270",
-    "open_date": "2025-01-22T00:00:00"
-  },
-  {
     "estab_name": "500 N 4TH STREET LLC",
     "site_address": "47201 CO RD 273",
     "site_city": "CONESVILLE",
@@ -977,6 +963,20 @@
     "insp_type": "B",
     "union_status": "B",
     "nr_in_estab": "10",
+    "open_date": "2025-01-22T00:00:00"
+  },
+  {
+    "estab_name": "EPSILON DATA MANAGEMENT, LLC",
+    "site_address": "1240 NORTH AVENUE WEST",
+    "site_city": "WEST CHICAGO",
+    "site_state": "IL",
+    "site_zip": "60185",
+    "owner_type": "A",
+    "safety_hlth": "S",
+    "naics_code": "518210",
+    "insp_type": "C",
+    "union_status": "B",
+    "nr_in_estab": "270",
     "open_date": "2025-01-22T00:00:00"
   },
   {
