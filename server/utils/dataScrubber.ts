@@ -54,8 +54,11 @@ export const scrubData = (): void => {
     // rawFilePath = input file
     // cleanedFilePath = output file
     const rawFilePath = path.join(__dirname, "../data/rawData.json");
+
     const cleanedFilePath = path.join(__dirname, "../data/cleanedData.json");
     const csvFilePath = path.join(__dirname, "../data/csvData.csv");
+    const summaryFilePath = path.join(__dirname, "../data/summaryData.json");
+    const summaryCsvFilePath = path.join(__dirname, "../data/stats.csv");
 
     console.log("Data scrubbing started...");
     // guard clause for if input file is not detected
@@ -68,6 +71,15 @@ export const scrubData = (): void => {
     const rawData = fs.readFileSync(rawFilePath, "utf-8");
     const records = JSON.parse(rawData);
 
+    // a stats object to hold our summary data, set to 0 to increment while mapping.
+    const stats = {
+        totalRecords: records.length,
+        unionStatus: { "Union": 0, "Non-Union": 0, "Unknown": 0},
+        InspFocus: { "Safety": 0, "Health": 0, "Unknown": 0},
+        // Empty object, when mapping. Inspection type letter code = key, we increment the value for our key in each iteration.
+        inspectionTypes: {} as Record <string, number>,
+    };
+
     // map through the array of objects
 const cleanedRecords = records.map((row: any) => {
     // we invoke cleanEstabName passing in the row.estab_name. This invokes the function on 31 & 32 and returns the trimmed and cleaned establishment name.
@@ -79,33 +91,48 @@ const cleanedRecords = records.map((row: any) => {
     // Split the open_date into an array with 2 elements at "T" and take just the date.
     const formatDate =  row.open_date ? row.open_date.split("T")[0] : '';
 
-    // ternary operators replace safety_hlth and union codes with full words. Syntax demanded a final else statement so if it finds any letter code it doesnt expect, we return unknown.
+    // safetyFocus found in this loop, as well as unionStatus are to be incremented into stats.
     const safetyFocus = row.safety_hlth === 'S' ? 'Safety' : row.safety_hlth === "H" ? 'Health' : "Unknown";
-    const unionStatus =  row.union_status === 'A' ? 'Union' : row.union_status === "B" ? "Non-Union" : "Unknown";
+    const isUnion = ['Y', 'U', 'A'].includes(row.union_status);
+    const isNonUnion = ['N', 'B', ''].includes(row.union_status);
+    const unionStatus = isUnion ? 'Union' : isNonUnion ? 'Non-Union' : "Unknown";
+
+// Concat address.
+    const fullAddress = [row.site_address, row.site_city, row.site_state, row.site_zip].join(", ")
+
+    // increment stats for summary data
+    stats.InspFocus[safetyFocus]++;
+    stats.unionStatus[unionStatus]++;
+    // if inspection type doesnt exsist in stats object, incrementing = NaN. Our inspection type = null. 
+    stats.inspectionTypes[InspectionType] = (stats.inspectionTypes[InspectionType] || 0) + 1;
+    
 
 
 
     // we return a new object with the cleaned and normalized data with readable keys and our cleaned values. Because we mapped through the original array, we get a new array of cleaned objects without affecting the original fetch.
     return {
         "Establishment": establishmentName,
-            "Address": row.site_address,
-            "City": row.site_city,
-            "State": row.site_state,
-            "Zip Code": row.site_zip,
-            "Business Ownership": ownership,
-            "Inspection Focus": safetyFocus,
-            "NAICS Code": row.naics_code,
-            "Inspection Purpose": InspectionType,
-            "Union Status": unionStatus,
-            "Employee Count": row.nr_in_estab,
-            "Inspection Start Date": formatDate
+        "Full Address": fullAddress,
+        "Business Ownership": ownership,
+        "Inspection Focus": safetyFocus,
+        "NAICS Code": row.naics_code,
+        "Inspection Purpose": InspectionType,
+        "Union Status": unionStatus,
+        "Employee Count": row.nr_in_estab,
+        "Inspection Start Date": formatDate
     }
 })
 // We write our cleaned data to its file path.
 fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
     console.log("Data scrubbing completed. Cleaned data has been written into cleanedData.json");
 
+fs.writeFileSync(summaryFilePath, JSON.stringify(stats, null, 2));
+    console.log("summary stats completed. summary date has been written into summaryData.json");
+
 
 const csv =  json2csv(cleanedRecords);
 fs.writeFileSync(csvFilePath, csv);
+
+const summaryCsv = json2csv([stats]);
+fs.writeFileSync(summaryCsvFilePath, summaryCsv);
 };
