@@ -1,6 +1,5 @@
 // Entry point: loads environment variables, mounts routes, and starts the Express server
 
-
 import 'dotenv/config';
 import app from './app.ts';
 import dolRoutes from './routes/dolRoutes.ts';
