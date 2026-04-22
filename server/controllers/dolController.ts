@@ -43,7 +43,7 @@ export const fetchOshaData = async (req: Request, res: Response) => {
 
 //object to hold all the search params to pass in to fetch request
 // * current limit is set to 200, but we can change if we want more/less at a time
-// TODO: error on "process" below mentions tsconfig file. We don't have that yet. Also, what about a compiler?
+
 
 // Is storing our API key in params a security flaw? Would we not be storing the uncoded key in our url in ${params}?
 const params = new URLSearchParams({
