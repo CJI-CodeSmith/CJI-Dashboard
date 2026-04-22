@@ -16,6 +16,12 @@ import fs from "fs";
 import path from "path";
 import { json2csv } from "json-2-csv";
 
+//Dirname not defined because type module 
+
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Define replacement for inspection type letter codes 
 const inspTypes: Record<string, string> = {
     'A': 'Accident',
@@ -48,17 +54,26 @@ const cleanEstabName = (rawName: string): string => {
     .replace(/\s+/g, ' ')
     .trim();
 };
-    //https://regexr.com/ Pasted establishment names and used references to create regex that starts at the beginning (^) and finds any digits, any spaces (\s*), and a hyphen (-) and any spaces after the hyphen and replaces it with an empty space. 
-// Void used because nothing is returned from the function, we write a new file instead. 
-export const scrubData = (): void => {
-    // rawFilePath = input file
-    // cleanedFilePath = output file
-    const rawFilePath = path.join(__dirname, "../data/rawData.json");
 
-    const cleanedFilePath = path.join(__dirname, "../data/cleanedData.json");
-    const csvFilePath = path.join(__dirname, "../data/csvData.csv");
-    const summaryFilePath = path.join(__dirname, "../data/summaryData.json");
-    const summaryCsvFilePath = path.join(__dirname, "../data/stats.csv");
+export const scrubData = (): void => {
+
+    // JSON paths
+    
+    const rawFilePath = path.join(__dirname, "../data/Json/rawData.json");
+    const cleanedFilePath = path.join(__dirname, "../data/Json/cleanedData.json");
+    const summaryFilePath = path.join(__dirname, "../data/Json/summaryData.json");
+
+    // CSV paths
+
+    const csvFilePath = path.join(__dirname, "../data/general_csv/csvData.csv");
+    const summaryCsvFilePath = path.join(__dirname, "../data/general_csv/stats.csv");
+
+    //Visualization paths
+
+    const unionCsvPath = path.join(__dirname, "../data/visualization/unionStatus.csv");
+    const inspFocusCsvPath = path.join(__dirname, "../data/visualization/inspFocus.csv");
+    const inspTypeCsvPath = path.join(__dirname, "../data/visualization/inspType.csv");
+
 
     console.log("Data scrubbing started...");
     // guard clause for if input file is not detected
@@ -105,10 +120,10 @@ const cleanedRecords = records.map((row: any) => {
     stats.unionStatus[unionStatus]++;
     // if inspection type doesnt exsist in stats object, incrementing = NaN. Our inspection type = null. 
     stats.inspectionTypes[InspectionType] = (stats.inspectionTypes[InspectionType] || 0) + 1;
+
     
-
-
-
+    
+    
     // we return a new object with the cleaned and normalized data with readable keys and our cleaned values. Because we mapped through the original array, we get a new array of cleaned objects without affecting the original fetch.
     return {
         "Establishment": establishmentName,
@@ -122,17 +137,43 @@ const cleanedRecords = records.map((row: any) => {
         "Inspection Start Date": formatDate
     }
 })
+
+// Helper function to flatten the array for proper csv conversion
+
+const formatCsv = (dataObj: Record<string, any> ,valueHeader: string) => {
+    return Object.entries(dataObj).map(([name, count]) => {
+        return {
+            "Category": name,
+            [valueHeader]: count
+        }
+    })
+}
+
+// Flatten required objects
+
+const unionData = formatCsv(stats.unionStatus, "Union Status")
+const focusData = formatCsv(stats.InspFocus, "Inspection Focus")
+const inspTypeData = formatCsv(stats.inspectionTypes, "Inspection Type")
+
+// Convert datasets to CSV
+
+const mainCSV = json2csv(cleanedRecords)
+const unionCSV = json2csv(unionData);
+const focusCSV = json2csv(focusData);
+const inspTypeCSV = json2csv(inspTypeData);
+
 // We write our cleaned data to its file path.
-fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
-    console.log("Data scrubbing completed. Cleaned data has been written into cleanedData.json");
 
-fs.writeFileSync(summaryFilePath, JSON.stringify(stats, null, 2));
-    console.log("summary stats completed. summary date has been written into summaryData.json");
+fs.writeFileSync(csvFilePath, mainCSV);
+    console.log('Wrote to cleanedData.csv')
+fs.writeFileSync(unionCsvPath, unionCSV);
+    console.log('Wrote to unionStatus.csv')
+fs.writeFileSync(inspFocusCsvPath, focusCSV);
+    console.log('Wrote to inspFocus.csv')
+fs.writeFileSync(inspTypeCsvPath, inspTypeCSV);
+    console.log('Wrote to inspType.csv')
 
+    console.log("Data scrubbing Complete")
+    
+} 
 
-const csv =  json2csv(cleanedRecords);
-fs.writeFileSync(csvFilePath, csv);
-
-const summaryCsv = json2csv([stats]);
-fs.writeFileSync(summaryCsvFilePath, summaryCsv);
-};
