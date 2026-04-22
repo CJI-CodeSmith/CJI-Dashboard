@@ -2,9 +2,13 @@
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 
-import { scrubData } from "../utils/dataScrubber";
+import { scrubData } from "../utils/dataScrubber.ts";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // typescript interface for the expected response from dol API get request
 interface DOLResponse {
@@ -71,7 +75,7 @@ try {
   // instead of sorting by desc we can just check records.length to see if its larger for now since its in an array.
   console.log( `DOL API fetch successful with: ${records.length} records`);
 
-  const rawFilePath = path.join(__dirname, "../data/rawData.json")
+  const rawFilePath = path.join(__dirname, "../data/Json/rawData.json")
 
   fs.writeFileSync(rawFilePath, JSON.stringify(records, null, 2));
   console.log("Fetched data has been written into rawData.json");
