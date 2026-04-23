@@ -1,22 +1,16 @@
 // Defines Express routes for Data Wrapper API endpoints
 
 import { Router } from "express";
-
-//TODO: the controllers in dataWrapperController have to be converted to express route handlers
-import { buildDatawrapperChart, getChart, updateChart } from "../controllers/dataWrapperController";
+import { getAllCharts } from "../controllers/dataWrapperController.ts";
 
 const router = Router();
 
-//* ONE-TIME SETUP ROUTES
 
-// creates the initial chart
-router.post('/charts', buildDatawrapperChart);
+// single route to return all chart info (IDs, embed codes, published dates) for frontend to render as iframes
+router.get('/charts', getAllCharts);
 
-// gets the embed id for the chart
-router.get('/charts/:id/embed', getChart);
-
-
-//* REUSABLE DATA UPDATE ROUTE
-router.put('/charts/:id', updateChart);
+// TODO: add a PUT/charts/:id route when the update functionality is built
 
 export default router;
+
+

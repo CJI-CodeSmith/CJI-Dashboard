@@ -171,11 +171,12 @@ const myCsvData = `Year,Score
 buildDatawrapperChart('My Progress Report', myCsvData, 'd3-donuts');
 // buildDatawrapperChart('Attempting bars', myCsvData);
 
-// getChart(`bHAkz`);
+//Here is where you put the chart ID you want to receive
+// getChart(`<chartID>`);
 
 // --- EXAMPLE USAGE ---
 // updateChart(
-//   'bHAkz',
+//   '<chartID>',
 //   { title: 'Updated Progress Report' },
 //   `Year,Score\n2024,90\n2025,95\n2026,110`,
 // );
@@ -183,3 +184,9 @@ buildDatawrapperChart('My Progress Report', myCsvData, 'd3-donuts');
 //Changing chart's title, type, or theme = changing the metadata
 
 //Updating the chart means the number at the end increments, so it's best to exclude the link with '/1/' in it.
+
+
+// npx tsc dataWrapperTest.ts --ignoreConfig
+//when in server/controllers: node dataWrapperTest.ts 
+
+
