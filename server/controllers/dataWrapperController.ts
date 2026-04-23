@@ -4,7 +4,19 @@ const DWAPI_KEY = process.env.DWAPI_KEY;
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
-async function buildDatawrapperChart(title: string, csvData: string | any) {
+interface ChartsInfo {
+  data: Array<{
+    chartName: string;
+    chartID: string;
+    embedCode: string;
+    publishedDate: string;
+  }>;
+}
+async function buildDatawrapperChart(
+  title: string,
+  csvData: string | any,
+  chartType: string = 'd3-bars',
+) {
   //Whose API key are we using for the client? Will there be one for Cornell?
   //charts endpoint for creating
   try {
@@ -16,12 +28,15 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
       },
       body: JSON.stringify({ title, type: 'd3-bars' }), //here is where the different chart types come into play, our donuts etc
     });
+    console.log('made it to createRes');
+
     //Checking if the response is successful
     if (!createRes.ok) {
       const errorText = await createRes.text();
       console.log('createRes not okay');
       throw new Error(`Create failed: ${errorText}`);
     }
+
     const chartData = await createRes.json();
     const chartId = chartData.id;
     console.log(`Created chart with ID#: ${chartId}`);
@@ -50,9 +65,10 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
     const publicUrl: string = publishData.publicUrl;
 
     //Datawrapper can use publicUrl or url depending on the state, so we use finalUrl to catch both
-    const finalUrl = publishData.publicUrl || publishData.url;
+    const finalUrl = publicUrl || url;
 
     console.log(`Chart is live at: ${finalUrl}`);
+    //might not need to return this, but instead return the other obj
     return finalUrl;
   } catch (error) {
     console.error('Process stopped: ', error);
