@@ -8,6 +8,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const DWAPI_KEY = process.env.DWAPI_KEY;
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
@@ -20,27 +23,42 @@ interface ChartsInfo {
     embedCode: string;
     publishedDate: string;
     totalViolations: number;
+    chartsType: string;
   }>;
 }
 
-const csv1PieUvNu = fs.readFileSync(
-  path.join(__dirname, 'server/data/visualization/unionStatus.csv'),
-  'utf-8',
-);
-const csv2PieHvS = fs.readFileSync(
-  path.join(__dirname, 'server/data/visualization/inspFocus.csv'),
-  'utf-8',
-);
-const csv3BarInspectionTypes = fs.readFileSync(
-  path.join(__dirname, 'server/data/visualization/inspType.csv'),
-  'utf-8',
-);
-// console.log(csv1PieUvNu);
+const ChartInfo = {
+  lastFetchDate: Date.now(),
+  charts: [],
+};
+
+// const chartsInfo : ChartsInfo {
+//   lastFetchDate = Date.now(),
+//   charts: []
+// }
+
 
 export const buildCharts = async () => {
-  buildDatawrapperChart('Union vs. Non-Union Inspection Count', csv1PieUvNu);
-  buildDatawrapperChart('Health vs. Safety Inspection Count', csv2PieHvS);
-  buildDatawrapperChart('Inspection Types', csv3BarInspectionTypes, 'd3-bars');
+  const unionCsvPath = path.join(
+    __dirname,
+    '../data/visualization/unionStatus.csv',
+  );
+  const inspFocusCsvPath = path.join(
+    __dirname,
+    '../data/visualization/inspFocus.csv',
+  );
+  const inspTypeCsvPath = path.join(
+    __dirname,
+    '../data/visualization/inspType.csv',
+  );
+  
+  const csv1PieUvNu = fs.readFileSync(unionCsvPath, 'utf-8');
+  const csv2PieHvS = fs.readFileSync(inspFocusCsvPath, 'utf-8');
+  const csv3BarInspectionTypes = fs.readFileSync(inspTypeCsvPath, 'utf-8');
+  
+  await buildDatawrapperChart('Union vs. Non-Union Inspection Count', csv1PieUvNu);
+  await buildDatawrapperChart('Health vs. Safety Inspection Count', csv2PieHvS);
+  await buildDatawrapperChart('Inspection Types', csv3BarInspectionTypes, 'd3-bars');
 
   async function buildDatawrapperChart(
     title: string,
@@ -69,7 +87,11 @@ export const buildCharts = async () => {
       const chartData = await createRes.json();
       const chartId = chartData.id;
       console.log(`Created chart with ID#: ${chartId}`);
+      //TODO CREATE INTERFACES FOR DIFF CHARTS AND PUSH TO ARRAY
+      // const createdChart = {
+      //   chartName = '',
 
+      // }
       //UPLOADING THE CSV DATA
       const uploadRes = await fetch(`${BASE_URL}/charts/${chartId}/data`, {
         method: 'PUT',
@@ -83,8 +105,6 @@ export const buildCharts = async () => {
       if (!uploadRes.ok) throw new Error('Upload failed');
       console.log('Data uploaded successfully.');
 
-
-      
       //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
       const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
         method: 'POST',
@@ -179,5 +199,3 @@ export const buildCharts = async () => {
     }
   }
 };
-
-export default buildCharts;

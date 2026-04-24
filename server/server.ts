@@ -37,15 +37,15 @@ async function checkFile() {
     let fileExists = fs.existsSync(chartsInfoPath);
     if (!fileExists) {
       await fetchAndScrubData();
-      console.log("First dol data fetch initiated");
+      console.log('First dol data fetch initiated');
       await buildCharts();
-      console.log("First charts built");
+      console.log('First charts built');
     }
     // new conditional to check the most recent save date -> if more than 30 days, catch fetch and build functions again
     else {
       const chartsInfo = fs.readFileSync(chartsInfoPath, "utf-8");
       const charts = JSON.parse(chartsInfo);
-      const lastFetch = new Date(charts.lastFetchDate);
+      const lastFetch = new Date(charts.latestFetchDate);
       const dateToday = new Date();
       //get date diff in milliseconds
       const msDiff = Math.abs(dateToday.getTime() - lastFetch.getTime());
