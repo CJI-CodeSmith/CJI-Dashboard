@@ -1,10 +1,28 @@
 // Fetches data from the Data Wrapper API and returns it for use by the dashboard
+// TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
+import { Request, Response } from 'express';
+
+//TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
 import 'dotenv/config';
 const DWAPI_KEY = process.env.DWAPI_KEY;
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
-async function buildDatawrapperChart(title: string, csvData: string | any) {
+interface ChartsInfo {
+  data: Array<{
+    chartName: string;
+    chartID: string;
+    embedCode: string;
+    publishedDate: string;
+  }>
+}
+
+//TODO: export buildDatawrapperChart function so it can be imported to routes
+export async function buildDatawrapperChart(
+  title: string,
+  csvString: string,
+  chartType: string = 'd3-bars',
+) {
   //Whose API key are we using for the client? Will there be one for Cornell?
   //charts endpoint for creating
   try {
@@ -14,7 +32,8 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
         Authorization: `Bearer ${DWAPI_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, type: 'd3-bars' }), //here is where the different chart types come into play, our donuts etc
+      body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into play, our donuts etc
+      //! save the chart type above to a variable so this function is reusable for different charts?
     });
     //Checking if the response is successful
     if (!createRes.ok) {
@@ -33,7 +52,7 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
         Authorization: `Bearer ${DWAPI_KEY}`,
         'Content-Type': 'text/csv',
       },
-      body: csvData,
+      body: csvString,
     });
 
     if (!uploadRes.ok) throw new Error('Upload failed');
@@ -50,7 +69,7 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
     const publicUrl: string = publishData.publicUrl;
 
     //Datawrapper can use publicUrl or url depending on the state, so we use finalUrl to catch both
-    const finalUrl = publishData.publicUrl || publishData.url;
+    const finalUrl = url || publicUrl;
 
     console.log(`Chart is live at: ${finalUrl}`);
     return finalUrl;
@@ -59,7 +78,9 @@ async function buildDatawrapperChart(title: string, csvData: string | any) {
   }
 }
 
-async function getChart(id: string) {
+//TODO: export getChart to be used in routes
+// ! do we need this to ping the datawrapper API, or just route to the json file
+export async function getChart(id: string) {
   try {
     const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
       method: 'GET',
@@ -83,7 +104,8 @@ async function getChart(id: string) {
   }
 }
 
-async function updateChart(id: string, updates: object, newCsvData?: string) {
+//TODO: export updateChart to be used in routes
+export async function updateChart(id: string, updates: object, newCsvData?: string) {
   try {
     const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
       method: 'PATCH',
