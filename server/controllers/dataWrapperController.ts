@@ -1,4 +1,7 @@
 // Fetches data from the Data Wrapper API and returns it for use by the dashboard
+// TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
+
+//TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -34,11 +37,7 @@ const csv3BarInspectionTypes = fs.readFileSync(
 );
 // console.log(csv1PieUvNu);
 
-const buildCharts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const buildCharts = async (req: Request, res: Response, next: NextFunction) => {
   buildDatawrapperChart('Union vs. Non-Union Inspection Count', csv1PieUvNu);
   buildDatawrapperChart('Health vs. Safety Inspection Count', csv2PieHvS);
   buildDatawrapperChart('Inspection Types', csv3BarInspectionTypes, 'd3-bars');
@@ -105,8 +104,6 @@ const buildCharts = async (
     }
   }
 
-
-  
   async function getChart(id: string) {
     try {
       const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
@@ -131,6 +128,7 @@ const buildCharts = async (
     }
   }
 
+  //TODO: export updateChart to be used in routes
   async function updateChart(id: string, updates: object, newCsvData?: string) {
     try {
       const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
