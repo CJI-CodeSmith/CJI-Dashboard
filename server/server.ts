@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 // ! the below functions need to be created first -> check export names to make sure they match
 import { fetchAndScrubData } from "./controllers/dolController.ts";
-import { buildAllCharts } from "./controllers/dataWrapperController.ts";
+import { buildCharts } from "./controllers/dataWrapperController.ts";
 
 const PORT = process.env.PORT || 8888;
 const __filename = fileURLToPath(import.meta.url);
@@ -38,7 +38,7 @@ async function checkFile() {
     if (!fileExists) {
       await fetchAndScrubData();
       console.log('First dol data fetch initiated');
-      await buildAllCharts();
+      await buildCharts();
       console.log('First charts built');
     }
     // new conditional to check the most recent save date -> if more than 30 days, catch fetch and build functions again
