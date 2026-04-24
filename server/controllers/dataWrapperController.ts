@@ -17,15 +17,21 @@ interface ChartsInfo {
     publishedDate: string;
   }>;
 }
+const csv1PieUvNu = fs.readFileSync(path.join(__dirname, ''), 'utf-8');
+const csv2PieHvS = fs.readFileSync(path.join(__dirname, ''), 'utf-8');
+const csv3BarInspectionTypes = fs.readFileSync(
+  path.join(__dirname, ''),
+  'utf-8',
+);
 
 export const buildCharts = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  buildDatawrapperChart('Union vs. Non-Union Inspection Count', 'csv1');
-  buildDatawrapperChart('Health vs. Safety Inspection Count', 'csv2');
-  buildDatawrapperChart('Inspection Types', 'csv3', 'd3-bars');
+  buildDatawrapperChart('Union vs. Non-Union Inspection Count', csv1PieUvNu);
+  buildDatawrapperChart('Health vs. Safety Inspection Count', csv2PieHvS);
+  buildDatawrapperChart('Inspection Types', csv3BarInspectionTypes, 'd3-bars');
 
   async function buildDatawrapperChart(
     title: string,
