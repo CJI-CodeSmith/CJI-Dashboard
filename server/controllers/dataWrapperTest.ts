@@ -165,7 +165,7 @@ async function updateChart(id: string, updates: object, newCsvString?: string) {
 const myCsvData = `Year,Score
 2024,85
 2025,92
-2026,100, 80`;
+2026,100`;
 
 // Call the function
 buildDatawrapperChart('My Progress Report', myCsvData, 'd3-donuts');

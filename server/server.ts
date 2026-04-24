@@ -3,6 +3,7 @@
 import 'dotenv/config';
 import app from './app.ts';
 import dolRoutes from './routes/dolRoutes.ts';
+import { fetchAndScrubData } from './controllers/dolController.ts';
 // TODO: import dataWrapperRoutes when written
 
 const PORT = process.env.PORT || 8888;
@@ -14,4 +15,8 @@ app.use('/api', dolRoutes);
 
 app.listen(PORT, () => {
   console.log('Server is running on port', PORT);
+});
+
+fetchAndScrubData().catch((error) => {
+  console.error("Error fetching DOL data:", error);
 });

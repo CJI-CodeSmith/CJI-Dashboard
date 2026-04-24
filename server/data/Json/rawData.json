@@ -364,20 +364,6 @@
     "open_date": "2022-08-16T00:00:00"
   },
   {
-    "estab_name": "65332 - HORIZON MINING LLC",
-    "site_address": "325 PRISON CONNECTOR RD",
-    "site_city": "STEPHENS",
-    "site_state": "KY",
-    "site_zip": "41171",
-    "owner_type": "A",
-    "safety_hlth": "S",
-    "naics_code": "518210",
-    "insp_type": "B",
-    "union_status": "B",
-    "nr_in_estab": "32",
-    "open_date": "2022-09-01T00:00:00"
-  },
-  {
     "estab_name": "EDGECONNEX ATLANTA HOLDINGS LLC",
     "site_address": "1101 DONNELLY AVE SW",
     "site_city": "ATLANTA",
@@ -389,6 +375,20 @@
     "insp_type": "H",
     "union_status": "B",
     "nr_in_estab": "10",
+    "open_date": "2022-09-01T00:00:00"
+  },
+  {
+    "estab_name": "65332 - HORIZON MINING LLC",
+    "site_address": "325 PRISON CONNECTOR RD",
+    "site_city": "STEPHENS",
+    "site_state": "KY",
+    "site_zip": "41171",
+    "owner_type": "A",
+    "safety_hlth": "S",
+    "naics_code": "518210",
+    "insp_type": "B",
+    "union_status": "B",
+    "nr_in_estab": "32",
     "open_date": "2022-09-01T00:00:00"
   },
   {
@@ -1226,7 +1226,7 @@
     "owner_type": "A",
     "safety_hlth": "S",
     "naics_code": "518210",
-    "insp_type": "B",
+    "insp_type": "G",
     "union_status": "B",
     "nr_in_estab": "1364",
     "open_date": "2026-02-04T00:00:00"

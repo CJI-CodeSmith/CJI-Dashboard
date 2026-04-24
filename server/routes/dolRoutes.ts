@@ -1,5 +1,5 @@
 // Defines Express routes for DOL inspection data endpoints
-import { fetchOshaData } from "../controllers/dolController";
+import { fetchOshaData } from "../controllers/dolController.ts";
 import { Router } from "express";
 
 const router = Router();
