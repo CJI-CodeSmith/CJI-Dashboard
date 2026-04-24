@@ -10,21 +10,31 @@ const DWAPI_KEY = process.env.DWAPI_KEY;
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
 interface ChartsInfo {
-  data: Array<{
+  lastFetchDate: string | number;
+  charts: Array<{
     chartName: string;
     chartID: string;
     embedCode: string;
     publishedDate: string;
+    totalViolations: number;
   }>;
 }
-const csv1PieUvNu = fs.readFileSync(path.join(__dirname, ''), 'utf-8');
-const csv2PieHvS = fs.readFileSync(path.join(__dirname, ''), 'utf-8');
-const csv3BarInspectionTypes = fs.readFileSync(
-  path.join(__dirname, ''),
+
+const csv1PieUvNu = fs.readFileSync(
+  path.join(__dirname, 'server/data/visualization/unionStatus.csv'),
   'utf-8',
 );
+const csv2PieHvS = fs.readFileSync(
+  path.join(__dirname, 'server/data/visualization/inspFocus.csv'),
+  'utf-8',
+);
+const csv3BarInspectionTypes = fs.readFileSync(
+  path.join(__dirname, 'server/data/visualization/inspType.csv'),
+  'utf-8',
+);
+// console.log(csv1PieUvNu);
 
-export const buildCharts = async (
+const buildCharts = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -95,6 +105,8 @@ export const buildCharts = async (
     }
   }
 
+
+  
   async function getChart(id: string) {
     try {
       const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
@@ -167,3 +179,5 @@ export const buildCharts = async (
     }
   }
 };
+
+export default buildCharts;
