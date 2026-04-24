@@ -1,13 +1,10 @@
-import React from 'react';
-
-// displays  company name , group name and prototype
-
 export default function Footer() {
-    return(
-        <footer>
-            <p>Cornell Climate Jobs Institute</p>
-            <p>CodeSmithXFutureCode</p>
-            <p>Prototype</p>
-        </footer>
-    )
+  return (
+    <footer className="footer">
+      <div className="footer-left">
+        Cornell Climate Jobs Institute &middot; CodeSmith x FutureCode
+      </div>
+      <div className="footer-right">Prototype - Not for production use</div>
+    </footer>
+  );
 }
