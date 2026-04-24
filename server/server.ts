@@ -1,16 +1,16 @@
 // Entry point: loads environment variables, mounts routes, and starts the Express server
 
-import 'dotenv/config';
-import app from './app.ts';
+import "dotenv/config";
+import app from "./app.ts";
 import dolRoutes from "./routes/dolRoutes.ts";
 import dataWrapperRoutes from "./routes/dataWrapperRoutes.ts";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ! the below functions need to be created first -> check export names to make sure they match
+//TODO: import updateAllCharts function
 import { fetchAndScrubData } from "./controllers/dolController.ts";
-import { buildAllCharts } from "./controllers/dataWrapperController.ts";
+import { buildCharts } from "./controllers/dataWrapperController.ts";
 
 const PORT = process.env.PORT || 8888;
 const __filename = fileURLToPath(import.meta.url);
@@ -32,20 +32,33 @@ check if chartInfo.json exists and calls appropriate functions depending
 */
 
 async function checkFile() {
-  const chartInfoPath = path.join(__dirname, "data/chartInfo.json");
+  const chartsInfoPath = path.join(__dirname, "data/chartsInfo.json");
   try {
-    let fileExists = fs.existsSync(chartInfoPath);
+    let fileExists = fs.existsSync(chartsInfoPath);
     if (!fileExists) {
       await fetchAndScrubData();
-      console.log('First dol data fetch initiated');
-      await buildAllCharts();
-      console.log('First charts built');
+      console.log("First dol data fetch initiated");
+      await buildCharts();
+      console.log("First charts built");
     }
     // new conditional to check the most recent save date -> if more than 30 days, catch fetch and build functions again
+    else {
+      const chartsInfo = fs.readFileSync(chartsInfoPath, "utf-8");
+      const charts = JSON.parse(chartsInfo);
+      const lastFetch = new Date(charts.lastFetchDate);
+      const dateToday = new Date();
+      //get date diff in milliseconds
+      const msDiff = Math.abs(dateToday.getTime() - lastFetch.getTime());
+      // get date diff in days(milliseconds->seconds->minutes->hours->days)
+      const daysDiff = msDiff / (1000 * 60 * 60 * 24);
+      if (daysDiff >= 30) {
+        await fetchAndScrubData();
+        //TODO: call updateAllCharts() here
+      }
+    }
   } catch (err) {
     console.error(err);
   }
 }
 
 checkFile();
-
