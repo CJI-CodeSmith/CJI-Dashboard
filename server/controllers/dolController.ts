@@ -48,8 +48,7 @@ export const fetchAndScrubData = async (): Promise<{
   };
   // Sample NAICS - 236220 452990 238990 561320
   const params = new URLSearchParams({
-    // 'X-API-KEY': process.env.DOL_API_KEY!,
-    'X-API-KEY': 'y9hdCoBo1F5Y6JoKfkBKrFR38lkddIgteaGpGnz9Mso'!,
+    'X-API-KEY': process.env.DOL_API_KEY!,
 
     limit: '200',
     offset: '0',
