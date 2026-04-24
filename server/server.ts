@@ -1,7 +1,7 @@
 // Entry point: loads environment variables, mounts routes, and starts the Express server
 
-import "dotenv/config";
-import app from "./app.ts";
+import 'dotenv/config';
+import app from './app.ts';
 import dolRoutes from "./routes/dolRoutes.ts";
 import dataWrapperRoutes from "./routes/dataWrapperRoutes.ts";
 import fs from "fs";
@@ -37,12 +37,15 @@ async function checkFile() {
     let fileExists = fs.existsSync(chartInfoPath);
     if (!fileExists) {
       await fetchAndScrubData();
+      console.log('First dol data fetch initiated');
       await buildAllCharts();
+      console.log('First charts built');
     }
-    // else, if it exists, what?
+    // new conditional to check the most recent save date -> if more than 30 days, catch fetch and build functions again
   } catch (err) {
     console.error(err);
   }
 }
 
 checkFile();
+

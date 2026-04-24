@@ -1,21 +1,29 @@
-import React from 'react';
-import CsvDownloadButton from "./CsvDownloadButton"
-
-//This is where we want to display the  Project name
-//We also need  to house the button to handle CSV Download
-//make sure to include props for csv button
-//add a last refreshed display portion: Optional 
+import CsvDownloadButton from "./CsvDownloadButton";
 
 interface HeaderProps {
-    csvData : string;
+  publishedAt: string;
 }
 
-export default function Header({csvData}:HeaderProps) {
-    return(
-        <header>
-        <h1>OSHA Data Center Inspection Dashboard</h1>
-        <p>Cornell Climate Jobs Institute - NAICS 5181210</p>
-        <CsvDownloadButton data={csvData} />
-        </header>
-    );
-};
+export default function Header({ publishedAt }: HeaderProps) {
+  return (
+    <header className="header">
+      <div className="header-brand">
+        <img
+          className="header-logo"
+          src="/ILR_Cornell_Lockup_White.png"
+          alt="Cornell University ILR School"
+        />
+        <div className="header-title-block">
+          <h1>OSHA Inspection Data Analytics</h1>
+          <p>Climate Jobs Institute &middot; NAICS 518210</p>
+        </div>
+      </div>
+      <div className="header-right">
+        <span className="header-refreshed">
+          Last refreshed: {publishedAt || "—"}
+        </span>
+        <CsvDownloadButton />
+      </div>
+    </header>
+  );
+}

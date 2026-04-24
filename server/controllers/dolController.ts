@@ -35,21 +35,16 @@ interface DOLResponse {
 // // convert startYear to string for passing in to fetch request
 // const dateString = startYear.toISOString().split(".")[0];
 
-export const fetchOshaData = async (req: Request, res: Response) => {
-  console.log("Starting DOL fetch...")
-
-  const filterObj = {
-    and: [
-      { field: "naics_code", operator: "eq", value: "518210" },
-      { field: "open_date", operator: "gt", value: "2021-01-01T00:00:00" },
-    ],
-  };
-
-//object to hold all the search params to pass in to fetch request
-// * current limit is set to 200, but we can change if we want more/less at a time
-
-
-// Is storing our API key in params a security flaw? Would we not be storing the uncoded key in our url in ${params}?
+// Pure async function to fetch data from DOL API, write raw data to file, and scrubs it. It's isolated from express, there is no req or res
+export const fetchAndScrubData = async (): Promise<{ totalRecords: number }> => {
+  console.log("Starting DOL fetch...");
+    const filterObj = {
+      and: [
+        { field: "naics_code", operator: "eq", value: "518210" },
+        { field: "open_date", operator: "gt", value: "2021-01-01T00:00:00" },
+      ],
+    };
+// Sample NAICS - 236220 452990 238990 561320
 const params = new URLSearchParams({
   "X-API-KEY": process.env.DOL_API_KEY!,
   limit: "200",
@@ -57,14 +52,12 @@ const params = new URLSearchParams({
   fields:
     "estab_name,site_address,site_city,site_state,site_zip,owner_type,safety_hlth,naics_code,insp_type,union_status,nr_in_estab,open_date",
   sort_by: "open_date",
-  sort: "asc",//TODO: Dbl check why DESC breaks our sort
+  sort: "asc", //TODO: Dbl check why DESC breaks our sort
   filter_object: JSON.stringify(filterObj),
 });
 
 const url = `https://apiprod.dol.gov/v4/get/OSHA/inspection/json?${params}`;
 
-
-try {
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -73,53 +66,30 @@ try {
   const inspection = (await response.json()) as DOLResponse;
   const records = inspection.data || [];
   // instead of sorting by desc we can just check records.length to see if its larger for now since its in an array.
-  console.log( `DOL API fetch successful with: ${records.length} records`);
+  console.log(`DOL API fetch successful with: ${records.length} records`);
 
-  const rawFilePath = path.join(__dirname, "../data/Json/rawData.json")
+  const rawFilePath = path.join(__dirname, "../data/Json/rawData.json");
 
   fs.writeFileSync(rawFilePath, JSON.stringify(records, null, 2));
   console.log("Fetched data has been written into rawData.json");
 
   // Invoke data scrubbing helper function here so each retrieval is automatically scrubbed and ready for use?
 scrubData();
-
-  res.status(200).json({
-    message: " Successfully extracted DOL Data to rawData.json, scrubbed it and written to cleanedData.json",
-    totalRecords: records.length
-  });
-} catch (err:any) {
-  console.error(err);
-  res.status(500).json({
-    error: "Error fetching DOL data",
-    details: err.message,
-  });
-}};
-
-
-// export async function fetchInspections() {
-//   try {
-//     const response = await fetch(url);
-//     if (!response.ok) {
-//       throw new Error("Issue getting response from fetchInspections");
-//     }
-
-//     const inspection = (await response.json()) as DOLResponse;
-//     console.log(inspection.data);
-//     return inspection.data;
-//   } catch (err) {
-//     console.error(err); 
-//     throw err;
-//   }
-// }
-
-// // Omitting options
-// const error1 = new Error("Error message");
-// console.log("cause" in error1); // false
-
-// // Passing a primitive value
-// const error2 = new Error("Error message", "");
-// console.log("cause" in error2); // false
-
-// // Passing an object without a cause property
-// const error3 = new Error("Error message", { details: "http error" });
-// console.log("cause" in error3); // false
+return { totalRecords: records.length };
+};
+// Express route handler: calls runOshaFetch using the totalRecords from the fetch to send a response to the client. This keeps the function agnostic of express.
+export const fetchOshaData = async (req: Request, res: Response) => {
+  try {
+    const { totalRecords } = await fetchAndScrubData();
+    res.status(200).json({
+      message: " Successfully extracted DOL Data to rawData.json, scrubbed it and written to cleanedData.json",
+      totalRecords,
+    });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({
+      error: "Error fetching DOL data",
+      details: err.message,
+    });
+  }
+};
