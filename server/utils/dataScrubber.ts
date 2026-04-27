@@ -155,23 +155,38 @@ const unionData = formatCsv(stats.unionStatus, "Union Status")
 const focusData = formatCsv(stats.InspFocus, "Inspection Focus")
 const inspTypeData = formatCsv(stats.inspectionTypes, "Inspection Type")
 
+const summaryStats = {
+    "Total Records": stats.totalRecords,
+    ...stats.unionStatus,
+    ...stats.InspFocus,
+    ...stats.inspectionTypes
+}
+const summaryData = formatCsv(summaryStats, "Count")
+
 // Convert datasets to CSV
 
 const mainCSV = json2csv(cleanedRecords)
 const unionCSV = json2csv(unionData);
 const focusCSV = json2csv(focusData);
 const inspTypeCSV = json2csv(inspTypeData);
+const summaryCSV = json2csv(summaryData);
 
 // We write our cleaned data to its file path.
 
 fs.writeFileSync(csvFilePath, mainCSV);
     console.log('Wrote to cleanedData.csv')
+fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
+    console.log('Wrote to cleanedData.json')
 fs.writeFileSync(unionCsvPath, unionCSV);
     console.log('Wrote to unionStatus.csv')
 fs.writeFileSync(inspFocusCsvPath, focusCSV);
     console.log('Wrote to inspFocus.csv')
 fs.writeFileSync(inspTypeCsvPath, inspTypeCSV);
     console.log('Wrote to inspType.csv')
+fs.writeFileSync(summaryCsvFilePath, summaryCSV);
+    console.log('Wrote to stats.csv')
+fs.writeFileSync(summaryFilePath, JSON.stringify(stats, null, 2));
+    console.log('Wrote to summaryData.json')
 
     console.log("Data scrubbing Complete")
     
