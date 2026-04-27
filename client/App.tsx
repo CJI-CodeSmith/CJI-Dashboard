@@ -25,10 +25,11 @@ export default function App() {
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sagittis metus id magna hendrerit aliquet. Vivamus sed nisl vel magna iaculis aliquet id quis neque. Sed vehicula, elit vel aliquam consectetur, augue ligula sagittis augue, eget dapibus ligula sem molestie nulla. Nullam aliquet nec est nec aliquet. Suspendisse tempus turpis et enim ultrices, at fermentum nisl laoreet. Quisque pretium ipsum velit, vel dictum lorem commodo in. Integer et arcu nec elit tincidunt finibus varius sed ipsum. Morbi mollis mauris vel dolor porttitor ultrices. Aenean erat velit, molestie quis sem in, mattis finibus mauris.";
 
   useEffect(() => {
+    const SERVER_PORT = process.env.PORT || 8888 || 5000;
     const fetchCharts = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8888/api/datawrapper/charts-info",
+          `http://localhost:${SERVER_PORT}/api/datawrapper/charts-info`,
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
