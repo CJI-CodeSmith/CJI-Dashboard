@@ -286,17 +286,6 @@
     "Inspection Start Date": "2022-08-16"
   },
   {
-    "Establishment": "HORIZON MINING LLC",
-    "Full Address": "325 PRISON CONNECTOR RD, STEPHENS, KY, 41171",
-    "Business Ownership": "Private Sector",
-    "Inspection Focus": "Safety",
-    "NAICS Code": "518210",
-    "Inspection Purpose": "Referral",
-    "Union Status": "Non-Union",
-    "Employee Count": "32",
-    "Inspection Start Date": "2022-09-01"
-  },
-  {
     "Establishment": "EDGECONNEX ATLANTA HOLDINGS LLC",
     "Full Address": "1101 DONNELLY AVE SW, ATLANTA, GA, 30310",
     "Business Ownership": "Private Sector",
@@ -305,6 +294,17 @@
     "Inspection Purpose": "Planned",
     "Union Status": "Non-Union",
     "Employee Count": "10",
+    "Inspection Start Date": "2022-09-01"
+  },
+  {
+    "Establishment": "HORIZON MINING LLC",
+    "Full Address": "325 PRISON CONNECTOR RD, STEPHENS, KY, 41171",
+    "Business Ownership": "Private Sector",
+    "Inspection Focus": "Safety",
+    "NAICS Code": "518210",
+    "Inspection Purpose": "Referral",
+    "Union Status": "Non-Union",
+    "Employee Count": "32",
     "Inspection Start Date": "2022-09-01"
   },
   {
@@ -748,17 +748,6 @@
     "Inspection Start Date": "2024-12-19"
   },
   {
-    "Establishment": "500 N 4TH STREET LLC",
-    "Full Address": "47201 CO RD 273, CONESVILLE, OH, 43811",
-    "Business Ownership": "Private Sector",
-    "Inspection Focus": "Safety",
-    "NAICS Code": "518210",
-    "Inspection Purpose": "Referral",
-    "Union Status": "Non-Union",
-    "Employee Count": "10",
-    "Inspection Start Date": "2025-01-22"
-  },
-  {
     "Establishment": "EPSILON DATA MANAGEMENT, LLC",
     "Full Address": "1240 NORTH AVENUE WEST, WEST CHICAGO, IL, 60185",
     "Business Ownership": "Private Sector",
@@ -767,6 +756,17 @@
     "Inspection Purpose": "Complaint",
     "Union Status": "Non-Union",
     "Employee Count": "270",
+    "Inspection Start Date": "2025-01-22"
+  },
+  {
+    "Establishment": "500 N 4TH STREET LLC",
+    "Full Address": "47201 CO RD 273, CONESVILLE, OH, 43811",
+    "Business Ownership": "Private Sector",
+    "Inspection Focus": "Safety",
+    "NAICS Code": "518210",
+    "Inspection Purpose": "Referral",
+    "Union Status": "Non-Union",
+    "Employee Count": "10",
     "Inspection Start Date": "2025-01-22"
   },
   {
@@ -962,7 +962,7 @@
     "Business Ownership": "Private Sector",
     "Inspection Focus": "Safety",
     "NAICS Code": "518210",
-    "Inspection Purpose": "Referral",
+    "Inspection Purpose": "Unprogrammed Related",
     "Union Status": "Non-Union",
     "Employee Count": "1364",
     "Inspection Start Date": "2026-02-04"
@@ -1023,17 +1023,6 @@
     "Inspection Start Date": "2026-03-04"
   },
   {
-    "Establishment": "GENERAL MOTORS GLOBAL TECHNICAL CENTER, GM IT DATA CENTER",
-    "Full Address": "30850 ALFRED SLOAN RD, WARREN, MI, 48093",
-    "Business Ownership": "Private Sector",
-    "Inspection Focus": "Health",
-    "NAICS Code": "518210",
-    "Inspection Purpose": "Referral",
-    "Union Status": "Union",
-    "Employee Count": "16",
-    "Inspection Start Date": "2026-03-10"
-  },
-  {
     "Establishment": "ARAMARK MANAGEMENT SERVICES LIMITED PARTNERSHIP",
     "Full Address": "30850 ALFRED SLOAN RD, WARREN, MI, 48093",
     "Business Ownership": "Private Sector",
@@ -1042,6 +1031,17 @@
     "Inspection Purpose": "Unprogrammed Related",
     "Union Status": "Non-Union",
     "Employee Count": "9",
+    "Inspection Start Date": "2026-03-10"
+  },
+  {
+    "Establishment": "GENERAL MOTORS GLOBAL TECHNICAL CENTER, GM IT DATA CENTER",
+    "Full Address": "30850 ALFRED SLOAN RD, WARREN, MI, 48093",
+    "Business Ownership": "Private Sector",
+    "Inspection Focus": "Health",
+    "NAICS Code": "518210",
+    "Inspection Purpose": "Referral",
+    "Union Status": "Union",
+    "Employee Count": "16",
     "Inspection Start Date": "2026-03-10"
   },
   {
