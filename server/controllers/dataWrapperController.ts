@@ -2,13 +2,14 @@
 // TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
 
 //TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
-import { NextFunction, Request, Response } from "express";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import "dotenv/config";
-import updateChartMetadata from "../utils/updateChartMetadata.ts";
-
+import dotenv from 'dotenv';
+// import 'dotenv/config';
+dotenv.config({ path: '../.env' });
+// dotenv.config();
+import { NextFunction, Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,7 +43,22 @@ export const getChartsInfo = async (_req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to read chartsInfo.json" });
   }
 };
+const unionCsvPath = path.join(
+  __dirname,
+  '../data/visualization/unionStatus.csv',
+);
+const inspFocusCsvPath = path.join(
+  __dirname,
+  '../data/visualization/inspFocus.csv',
+);
+const inspTypeCsvPath = path.join(
+  __dirname,
+  '../data/visualization/inspType.csv',
+);
 
+const csv1PieUvNu = fs.readFileSync(unionCsvPath, 'utf-8');
+const csv2PieHvS = fs.readFileSync(inspFocusCsvPath, 'utf-8');
+const csv3BarInspectionTypes = fs.readFileSync(inspTypeCsvPath, 'utf-8');
 export const buildCharts = async () => {
   const unionCsvPath = path.join(
     __dirname,
@@ -141,12 +157,6 @@ export const buildCharts = async () => {
       const url: string = publishData.url;
       const publicUrl: string = publishData.publicUrl;
 
-      /*
-    Structure of each chart:
-    {chartName, chartId, embedCode, publishedDate, chartsType
-    }
-      */
-
       const newChartInfo: Charts = {
         chartName: publishData.data.title,
         chartID: publishData.data.id,
@@ -229,28 +239,28 @@ async function updateChart(id: string, updates: object, newCsvData?: string) {
           Authorization: `Bearer ${DWAPI_KEY}`,
           "Content-Type": "text/csv",
         },
-        body: newCsvData,
+        body: JSON.stringify(updates),
       });
       if (!uploadRes.ok) throw new Error("Data upload failed");
       console.log("New data uploaded successfully.");
     }
 
-    //Need to republish for public API viewing
+      //Need to republish for public API viewing
 
-    const publishRes = await fetch(`${BASE_URL}/charts/${id}/publish`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${DWAPI_KEY}` },
-    });
+      const publishRes = await fetch(`${BASE_URL}/charts/${id}/publish`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${DWAPI_KEY}` },
+      });
 
-    if (!publishRes.ok) throw new Error("Re-publish failed");
+      if (!publishRes.ok) throw new Error('Re-publish failed');
 
-    const publishData = await publishRes.json();
-    const finalUrl =
-      publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
+      const publishData = await publishRes.json();
+      const finalUrl =
+        publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
 
     console.log(`Update Live! View here: ${finalUrl}`);
     return finalUrl;
   } catch (error) {
     console.error("Error in updateChart in dataWrapperController");
   }
-}
+};
