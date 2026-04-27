@@ -2,17 +2,18 @@
 // TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
 
 //TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
+import dotenv from 'dotenv';
+// import 'dotenv/config';
+dotenv.config({ path: '../.env' });
+// dotenv.config();
 import { NextFunction, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import 'dotenv/config';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const DWAPI_KEY = process.env.DWAPI_KEY;
-console.log('DWAPIKEY: ', DWAPI_KEY);
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
