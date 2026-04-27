@@ -169,36 +169,53 @@ export const scrubData = (): void => {
 
   const formatCsv = (dataObj: Record<string, any>, valueHeader: string) => {
     return Object.entries(dataObj).map(([name, count]) => {
-      return {
-        Category: name,
-        [valueHeader]: count,
-      };
-    });
-  };
+        return {
+            "Category": name,
+            [valueHeader]: count
+        }
+    })
+}
 
-  // Flatten required objects
+// Flatten required objects
 
-  const unionData = formatCsv(stats.unionStatus, 'Union Status');
-  const focusData = formatCsv(stats.InspFocus, 'Inspection Focus');
-  const inspTypeData = formatCsv(stats.inspectionTypes, 'Inspection Type');
+const unionData = formatCsv(stats.unionStatus, "Union Status")
+const focusData = formatCsv(stats.InspFocus, "Inspection Focus")
+const inspTypeData = formatCsv(stats.inspectionTypes, "Inspection Type")
 
-  // Convert datasets to CSV
+const summaryStats = {
+    "Total Records": stats.totalRecords,
+    ...stats.unionStatus,
+    ...stats.InspFocus,
+    ...stats.inspectionTypes
+}
+const summaryData = formatCsv(summaryStats, "Count")
 
-  const mainCSV = json2csv(cleanedRecords);
-  const unionCSV = json2csv(unionData);
-  const focusCSV = json2csv(focusData);
-  const inspTypeCSV = json2csv(inspTypeData);
+// Convert datasets to CSV
 
-  // We write our cleaned data to its file path.
+const mainCSV = json2csv(cleanedRecords)
+const unionCSV = json2csv(unionData);
+const focusCSV = json2csv(focusData);
+const inspTypeCSV = json2csv(inspTypeData);
+const summaryCSV = json2csv(summaryData);
 
-  fs.writeFileSync(csvFilePath, mainCSV);
-  console.log('Wrote to cleanedData.csv');
-  fs.writeFileSync(unionCsvPath, unionCSV);
-  console.log('Wrote to unionStatus.csv');
-  fs.writeFileSync(inspFocusCsvPath, focusCSV);
-  console.log('Wrote to inspFocus.csv');
-  fs.writeFileSync(inspTypeCsvPath, inspTypeCSV);
-  console.log('Wrote to inspType.csv');
+// We write our cleaned data to its file path.
 
-  console.log('Data scrubbing Complete');
-};
+fs.writeFileSync(csvFilePath, mainCSV);
+    console.log('Wrote to cleanedData.csv')
+fs.writeFileSync(cleanedFilePath, JSON.stringify(cleanedRecords, null, 2));
+    console.log('Wrote to cleanedData.json')
+fs.writeFileSync(unionCsvPath, unionCSV);
+    console.log('Wrote to unionStatus.csv')
+fs.writeFileSync(inspFocusCsvPath, focusCSV);
+    console.log('Wrote to inspFocus.csv')
+fs.writeFileSync(inspTypeCsvPath, inspTypeCSV);
+    console.log('Wrote to inspType.csv')
+fs.writeFileSync(summaryCsvFilePath, summaryCSV);
+    console.log('Wrote to stats.csv')
+fs.writeFileSync(summaryFilePath, JSON.stringify(stats, null, 2));
+    console.log('Wrote to summaryData.json')
+
+    console.log("Data scrubbing Complete")
+    
+} 
+

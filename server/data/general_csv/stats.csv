@@ -1,2 +1,15 @@
-totalRecords,unionStatus.Union,unionStatus.Non-Union,unionStatus.Unknown,InspFocus.Safety,InspFocus.Health,InspFocus.Unknown,inspectionTypes.Referral,inspectionTypes.Unprogrammed Related,inspectionTypes.Accident,inspectionTypes.Complaint,inspectionTypes.Fatality/Catastrophe,inspectionTypes.Planned,inspectionTypes.Follow-Up,inspectionTypes.Programmed Related
-96,9,87,0,73,23,0,52,13,4,13,3,7,2,2
+Category,Count
+Total Records,96
+Union,9
+Non-Union,87
+Unknown,0
+Safety,73
+Health,23
+Referral,51
+Unprogrammed Related,14
+Accident,4
+Complaint,13
+Fatality/Catastrophe,3
+Planned,7
+Follow-Up,2
+Programmed Related,2
