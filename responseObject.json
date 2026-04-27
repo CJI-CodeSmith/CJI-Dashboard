@@ -161,7 +161,8 @@ CHART DATA {"publicId":"SfWkP","language":"en-US","theme":"datawrapper","id":"Sf
 Chart created with ID: SfWkP
 Data uploaded successfully.
 
-PUBLISH DATA {"data":
+PUBLISH DATA 
+{"data":
 {"publicId":"SfWkP",
 "language":"en-US",
 "theme":"datawrapper",

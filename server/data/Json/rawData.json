@@ -952,20 +952,6 @@
     "open_date": "2024-12-19T00:00:00"
   },
   {
-    "estab_name": "500 N 4TH STREET LLC",
-    "site_address": "47201 CO RD 273",
-    "site_city": "CONESVILLE",
-    "site_state": "OH",
-    "site_zip": "43811",
-    "owner_type": "A",
-    "safety_hlth": "S",
-    "naics_code": "518210",
-    "insp_type": "B",
-    "union_status": "B",
-    "nr_in_estab": "10",
-    "open_date": "2025-01-22T00:00:00"
-  },
-  {
     "estab_name": "EPSILON DATA MANAGEMENT, LLC",
     "site_address": "1240 NORTH AVENUE WEST",
     "site_city": "WEST CHICAGO",
@@ -977,6 +963,20 @@
     "insp_type": "C",
     "union_status": "B",
     "nr_in_estab": "270",
+    "open_date": "2025-01-22T00:00:00"
+  },
+  {
+    "estab_name": "500 N 4TH STREET LLC",
+    "site_address": "47201 CO RD 273",
+    "site_city": "CONESVILLE",
+    "site_state": "OH",
+    "site_zip": "43811",
+    "owner_type": "A",
+    "safety_hlth": "S",
+    "naics_code": "518210",
+    "insp_type": "B",
+    "union_status": "B",
+    "nr_in_estab": "10",
     "open_date": "2025-01-22T00:00:00"
   },
   {
@@ -1302,20 +1302,6 @@
     "open_date": "2026-03-04T00:00:00"
   },
   {
-    "estab_name": "GENERAL MOTORS GLOBAL TECHNICAL CENTER, GM IT DATA CENTER",
-    "site_address": "30850 ALFRED SLOAN RD",
-    "site_city": "WARREN",
-    "site_state": "MI",
-    "site_zip": "48093",
-    "owner_type": "A",
-    "safety_hlth": "H",
-    "naics_code": "518210",
-    "insp_type": "B",
-    "union_status": "A",
-    "nr_in_estab": "16",
-    "open_date": "2026-03-10T00:00:00"
-  },
-  {
     "estab_name": "ARAMARK MANAGEMENT SERVICES LIMITED PARTNERSHIP",
     "site_address": "30850 ALFRED SLOAN RD",
     "site_city": "WARREN",
@@ -1327,6 +1313,20 @@
     "insp_type": "G",
     "union_status": "B",
     "nr_in_estab": "9",
+    "open_date": "2026-03-10T00:00:00"
+  },
+  {
+    "estab_name": "GENERAL MOTORS GLOBAL TECHNICAL CENTER, GM IT DATA CENTER",
+    "site_address": "30850 ALFRED SLOAN RD",
+    "site_city": "WARREN",
+    "site_state": "MI",
+    "site_zip": "48093",
+    "owner_type": "A",
+    "safety_hlth": "H",
+    "naics_code": "518210",
+    "insp_type": "B",
+    "union_status": "A",
+    "nr_in_estab": "16",
     "open_date": "2026-03-10T00:00:00"
   },
   {
