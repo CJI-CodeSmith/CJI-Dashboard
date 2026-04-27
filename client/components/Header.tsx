@@ -1,10 +1,10 @@
 import CsvDownloadButton from "./CsvDownloadButton";
 
 interface HeaderProps {
-  publishedAt: string;
+  lastUpdated: string;
 }
 
-export default function Header({ publishedAt }: HeaderProps) {
+export default function Header({ lastUpdated }: HeaderProps) {
   return (
     <header className="header">
       <div className="header-brand">
@@ -20,7 +20,7 @@ export default function Header({ publishedAt }: HeaderProps) {
       </div>
       <div className="header-right">
         <span className="header-refreshed">
-          Last refreshed: {publishedAt || "—"}
+          Last refreshed: {lastUpdated || "—"}
         </span>
         <CsvDownloadButton />
       </div>
