@@ -216,52 +216,73 @@ async function getChart(id: string) {
     console.error('Error in getChartResponse in dataWrapperController');
   }
 }
+export const updateAllCharts = async () => {
+  //check whether the file exists, which is happening in server
+  //need to get the titles from the json file
+  //DRY
+  getChartsInfo();
+  async function getChartsInfo() {
+    const chartsInfoPath = path.join(__dirname, '/chartsInfo.json');
+    try {
+      const info = await fs.promises.readFile(chartsInfoPath, 'utf-8');
+      const data = JSON.parse(info);
+      console.log('DATA: ', data);
+      // console.log(data.charts[0]['chartID']);
+      updateChart(data.charts[0]['chartID'], {}, csv3BarInspectionTypes);
+      updateChart(data.charts[1]['chartID'], {}, csv1PieUvNu);
+      updateChart(data.charts[2]['chartID'], {}, csv2PieHvS);
+    } catch (err) {
+      console.error('error at reading', err);
+    }
+  }
 
-//TODO: export updateChart to be used in routes
-async function updateChart(id: string, updates: object, newCsvData?: string) {
-  try {
-    const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${DWAPI_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates),
-    });
-    if (!patchRes.ok)
-      throw new Error(`Metadata update failed: ${await patchRes.text()}`);
-    console.log('Metadata updated successfully.');
-
-    //inputting optional new data (this seems to replace previous data completely)
-    if (newCsvData) {
-      const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
-        method: 'PUT',
+  //TODO: export updateChart to be used in routes
+  //updates allows us to edit the chart title and other elements
+  async function updateChart(id: string, updates: object, newCsvData?: string) {
+    try {
+      const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
+        method: 'PATCH',
         headers: {
           Authorization: `Bearer ${DWAPI_KEY}`,
-          'Content-Type': 'text/csv',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(updates),
       });
-      if (!uploadRes.ok) throw new Error('Data upload failed');
-      console.log('New data uploaded successfully.');
+      if (!patchRes.ok)
+        throw new Error(`Metadata update failed: ${await patchRes.text()}`);
+      console.log('Metadata updated successfully.');
+
+      //inputting optional new data (this seems to replace previous data completely)
+      if (newCsvData) {
+        const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${DWAPI_KEY}`,
+            'Content-Type': 'text/csv',
+          },
+          body: newCsvData,
+        });
+        if (!uploadRes.ok) throw new Error('Data upload failed');
+        console.log('New data uploaded successfully.');
+      }
+
+      //Need to republish for public API viewing
+
+      const publishRes = await fetch(`${BASE_URL}/charts/${id}/publish`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${DWAPI_KEY}` },
+      });
+
+      if (!publishRes.ok) throw new Error('Re-publish failed');
+
+      const publishData = await publishRes.json();
+      const finalUrl =
+        publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
+
+      console.log(`Update Live! View here: ${finalUrl}`);
+      return finalUrl;
+    } catch (error) {
+      console.error('Error in updateChart in dataWrapperController');
     }
-
-    //Need to republish for public API viewing
-
-    const publishRes = await fetch(`${BASE_URL}/charts/${id}/publish`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${DWAPI_KEY}` },
-    });
-
-    if (!publishRes.ok) throw new Error('Re-publish failed');
-
-    const publishData = await publishRes.json();
-    const finalUrl =
-      publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
-
-    console.log(`Update Live! View here: ${finalUrl}`);
-    return finalUrl;
-  } catch (error) {
-    console.error('Error in updateChart in dataWrapperController');
   }
-}
+};
