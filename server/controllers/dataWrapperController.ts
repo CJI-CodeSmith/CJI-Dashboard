@@ -118,6 +118,12 @@ export const buildCharts = async () => {
         headers: { Authorization: `Bearer ${DWAPI_KEY}` },
       });
 
+      //! Add this to check why publish isn't working
+      if (!publishRes.ok) {
+        const errorText = await publishRes.text();
+        throw new Error(`Publish failed: ${errorText}`);
+      }
+
       const publishData = await publishRes.json();
       const url: string = publishData.url;
       const publicUrl: string = publishData.publicUrl;
@@ -163,6 +169,7 @@ export const buildCharts = async () => {
   });
 };
 
+//! This function is never used
 async function getChart(id: string) {
   try {
     const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
@@ -187,7 +194,7 @@ async function getChart(id: string) {
   }
 }
 
-//TODO: export updateChart to be used in routes
+//! This function is never used
 async function updateChart(id: string, updates: object, newCsvData?: string) {
   try {
     const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {

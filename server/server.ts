@@ -32,7 +32,7 @@ check if chartInfo.json exists and calls appropriate functions depending
 */
 
 async function checkFile() {
-  const chartsInfoPath = path.join(__dirname, "data/chartsInfo.json");
+  const chartsInfoPath = path.join(__dirname, "chartsInfo.json");
   try {
     let fileExists = fs.existsSync(chartsInfoPath);
     if (!fileExists) {
