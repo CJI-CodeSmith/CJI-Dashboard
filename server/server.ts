@@ -57,8 +57,7 @@ async function checkFile() {
       const daysDiff = msDiff / (1000 * 60 * 60 * 24);
       if (daysDiff >= 30) {
         await fetchAndScrubData();
-        //TODO: call updateAllCharts() here
-        updateAllCharts();
+        await updateAllCharts();
       }
     }
   } catch (err) {

@@ -193,34 +193,11 @@ export const buildCharts = async () => {
   });
 };
 
-async function getChart(id: string) {
-  try {
-    const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${DWAPI_KEY}`,
-        accept: '*/*',
-      },
-    });
-
-    if (!getChartResponse.ok) {
-      throw new Error(
-        "Issue getting response from dataWrapperController's getChart",
-      );
-    }
-    const data = await getChartResponse.json();
-
-    const publicUrl = data.publicUrl; //clickable for public access
-    const imageUrl = `https://datawrapper.dwcdn.net/${id}/full.png`; //static image
-  } catch (error) {
-    console.error('Error in getChartResponse in dataWrapperController');
-  }
-}
 export const updateAllCharts = async () => {
   //check whether the file exists, which is happening in server
   //need to get the titles from the json file
   //DRY
-  getChartsInfo();
+  await getChartsInfo();
   async function getChartsInfo() {
     const chartsInfoPath = path.join(__dirname, '/chartsInfo.json');
     try {
@@ -228,9 +205,9 @@ export const updateAllCharts = async () => {
       const data = JSON.parse(info);
       console.log('DATA: ', data);
       // console.log(data.charts[0]['chartID']);
-      updateChart(data.charts[0]['chartID'], {}, csv3BarInspectionTypes);
-      updateChart(data.charts[1]['chartID'], {}, csv1PieUvNu);
-      updateChart(data.charts[2]['chartID'], {}, csv2PieHvS);
+      updateChart(data.charts[0]['chartID'], {}, csv1PieUvNu);
+      updateChart(data.charts[1]['chartID'], {}, csv2PieHvS);
+      updateChart(data.charts[2]['chartID'], {}, csv3BarInspectionTypes);
     } catch (err) {
       console.error('error at reading', err);
     }
