@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm start",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\""
+  },
   "devDependencies": {
     "@types/node": "^25.6.0"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
   }
 }
