@@ -118,7 +118,7 @@ const cleanedRecords = records.map((row: any) => {
     // increment stats for summary data
     stats.InspFocus[safetyFocus]++;
     stats.unionStatus[unionStatus]++;
-    // if inspection type doesnt exsist in stats object, incrementing = NaN. Our inspection type = null. 
+    // if inspection type doesnt exsist in stats object, incrementing = NaN. Our inspection type = null.
     stats.inspectionTypes[InspectionType] = (stats.inspectionTypes[InspectionType] || 0) + 1;
 
     

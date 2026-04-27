@@ -32,6 +32,15 @@ const chartsInfo: ChartsInfo = {
   latestFetchDate: Date.now(),
   charts: [],
 }; //need to figure out this type for an array of ChartsInfo
+export const getChartsInfo = async (_req: Request, res: Response) => {
+  const chartsInfoPath = path.join(__dirname, '../chartsInfo.json');
+  try {
+    const info = await fs.promises.readFile(chartsInfoPath, 'utf-8');
+    return res.status(200).json(JSON.parse(info));
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to read chartsInfo.json' });
+  }
+};
 
 export const buildCharts = async () => {
   const unionCsvPath = path.join(
