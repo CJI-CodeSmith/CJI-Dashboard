@@ -11,9 +11,8 @@ import 'dotenv/config';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// const DWAPI_KEY = process.env.DWAPI_KEY;
-const DWAPI_KEY =
-  'Rg5hae0GdNknh56zUDtRMQvVBopnyWIfXXbThl9NlLM0AeXfMXe0HpD6ON1j5ctb';
+const DWAPI_KEY = process.env.DWAPI_KEY;
+
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
@@ -195,7 +194,7 @@ export const updateAllCharts = async () => {
       // console.log(data.charts[0]['chartID']);
       updateChart(data.charts[0]['chartID'], {}, csv3BarInspectionTypes);
       updateChart(data.charts[1]['chartID'], {}, csv1PieUvNu);
-      updateChart(data.charts[3]['chartID'], {}, csv2PieHvS);
+      updateChart(data.charts[2]['chartID'], {}, csv2PieHvS);
     } catch (err) {
       console.error('error at reading', err);
     }
