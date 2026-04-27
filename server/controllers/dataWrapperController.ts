@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const DWAPI_KEY = process.env.DWAPI_KEY;
-
+console.log('DWAPIKEY: ', DWAPI_KEY);
 
 const BASE_URL = `https://api.datawrapper.de/v3`;
 
