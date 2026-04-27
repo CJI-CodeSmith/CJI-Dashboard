@@ -1,4 +1,4 @@
-export default function updateChartTypeMetadata(chartType: string) {
+export default function updateChartMetadata(chartType: string) {
   const piePalette = [
     "#4A7C9E",
     "#5A9E7C",

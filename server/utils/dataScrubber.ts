@@ -25,8 +25,8 @@ const __dirname = path.dirname(__filename);
 // Define replacement for inspection type letter codes 
 const inspTypes: Record<string, string> = {
     'A': 'Accident',
-    'B': 'Referral',
-    'C': 'Complaint',
+    'B': 'Complaint',
+    'C': 'Referral',
     'D': 'Monitoring',
     'E': 'Variance',
     'F': 'Follow-Up',

@@ -35,12 +35,12 @@ const chartsInfo: ChartsInfo = {
   charts: [],
 }; //need to figure out this type for an array of ChartsInfo
 export const getChartsInfo = async (_req: Request, res: Response) => {
-  const chartsInfoPath = path.join(__dirname, '../chartsInfo.json');
+  const chartsInfoPath = path.join(__dirname, "../chartsInfo.json");
   try {
-    const info = await fs.promises.readFile(chartsInfoPath, 'utf-8');
+    const info = await fs.promises.readFile(chartsInfoPath, "utf-8");
     return res.status(200).json(JSON.parse(info));
   } catch (err) {
-    return res.status(500).json({ error: 'Failed to read chartsInfo.json' });
+    return res.status(500).json({ error: "Failed to read chartsInfo.json" });
   }
 };
 const unionCsvPath = path.join(
@@ -60,38 +60,55 @@ const csv1PieUvNu = fs.readFileSync(unionCsvPath, 'utf-8');
 const csv2PieHvS = fs.readFileSync(inspFocusCsvPath, 'utf-8');
 const csv3BarInspectionTypes = fs.readFileSync(inspTypeCsvPath, 'utf-8');
 export const buildCharts = async () => {
+  const unionCsvPath = path.join(
+    __dirname,
+    "../data/visualization/unionStatus.csv",
+  );
+  const inspFocusCsvPath = path.join(
+    __dirname,
+    "../data/visualization/inspFocus.csv",
+  );
+  const inspTypeCsvPath = path.join(
+    __dirname,
+    "../data/visualization/inspType.csv",
+  );
+
+  const csv1PieUvNu = fs.readFileSync(unionCsvPath, "utf-8");
+  const csv2PieHvS = fs.readFileSync(inspFocusCsvPath, "utf-8");
+  const csv3BarInspectionTypes = fs.readFileSync(inspTypeCsvPath, "utf-8");
+
   await buildDatawrapperChart(
-    'Union vs. Non-Union Inspection Count',
+    "Union vs. Non-Union Inspection Count",
     csv1PieUvNu,
   );
-  await buildDatawrapperChart('Health vs. Safety Inspection Count', csv2PieHvS);
+  await buildDatawrapperChart("Health vs. Safety Inspection Count", csv2PieHvS);
   await buildDatawrapperChart(
-    'Inspection Types',
+    "Inspection Types",
     csv3BarInspectionTypes,
-    'd3-bars',
+    "d3-bars",
   );
 
   async function buildDatawrapperChart(
     title: string,
     csvData: string | any,
-    chartType: string = 'd3-pies',
+    chartType: string = "d3-pies",
   ) {
     //charts endpoint for creating
     try {
       const createRes = await fetch(`${BASE_URL}/charts`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${DWAPI_KEY}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into play, our donuts etc
       });
-      console.log('made it to createRes');
+      console.log("made it to createRes");
 
       //Checking if the response is successful
       if (!createRes.ok) {
         const errorText = await createRes.text();
-        console.log('createRes not okay');
+        console.log("createRes not okay");
         throw new Error(`Create failed: ${errorText}`);
       }
 
@@ -101,20 +118,38 @@ export const buildCharts = async () => {
       //TODO CREATE INTERFACES FOR DIFF CHARTS AND PUSH TO ARRAY
       //UPLOADING THE CSV DATA
       const uploadRes = await fetch(`${BASE_URL}/charts/${chartId}/data`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${DWAPI_KEY}`,
-          'Content-Type': 'text/csv',
+          "Content-Type": "text/csv",
         },
         body: csvData,
       });
 
-      if (!uploadRes.ok) throw new Error('Upload failed');
-      console.log('Data uploaded successfully.');
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      console.log("Data uploaded successfully.");
+
+      //Patch chart metadata before publish (make charts have percentages and different colors)
+      const chartMetadata = updateChartMetadata(chartType);
+      if (chartMetadata) {
+        const metaRes = await fetch(`${BASE_URL}/charts/${chartId}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${DWAPI_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            metadata: { visualize: chartMetadata },
+          }),
+        });
+        if (!metaRes.ok)
+          throw new Error(`Metadata patch failed: ${await metaRes.text()}`);
+        console.log("Percentage and color styling metadata applied.");
+      }
 
       //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
       const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
-        method: 'POST',
+        method: "POST",
         headers: { Authorization: `Bearer ${DWAPI_KEY}` },
       });
 
@@ -126,15 +161,15 @@ export const buildCharts = async () => {
         chartName: publishData.data.title,
         chartID: publishData.data.id,
         embedCode:
-          publishData.data.metadata.publish['embed-codes'][
-            'embed-method-responsive'
+          publishData.data.metadata.publish["embed-codes"][
+            "embed-method-responsive"
           ],
         publishedDate: publishData.data.publishedAt,
         chartType: publishData.data.type,
       };
 
       chartsInfo.charts.push(newChartInfo);
-      console.log('CHARTS INFO: ', chartsInfo);
+      console.log("CHARTS INFO: ", chartsInfo);
       //Datawrapper can use publicUrl or url depending on the state, so we use finalUrl to catch both
       const finalUrl = publicUrl || url;
 
@@ -142,15 +177,15 @@ export const buildCharts = async () => {
       //might not need to return this, but instead return the other obj
       return finalUrl;
     } catch (error) {
-      console.error('Process stopped: ', error);
+      console.error("Process stopped: ", error);
     }
   }
 
   //writing the chartsInfo to a json object
   const chartsInfoJSON = JSON.stringify(chartsInfo);
-  fs.writeFile('chartsInfo.json', chartsInfoJSON, (err) => {
+  fs.writeFile("chartsInfo.json", chartsInfoJSON, (err) => {
     if (err) {
-      console.error('Error writing chartsInfo.json: ', err);
+      console.error("Error writing chartsInfo.json: ", err);
     } else {
       console.log(`chartsInfoJSON successfully created.`);
     }
@@ -160,10 +195,10 @@ export const buildCharts = async () => {
 async function getChart(id: string) {
   try {
     const getChartResponse = await fetch(`${BASE_URL}/charts/${id}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${DWAPI_KEY}`,
-        accept: '*/*',
+        accept: "*/*",
       },
     });
 
@@ -177,59 +212,38 @@ async function getChart(id: string) {
     const publicUrl = data.publicUrl; //clickable for public access
     const imageUrl = `https://datawrapper.dwcdn.net/${id}/full.png`; //static image
   } catch (error) {
-    console.error('Error in getChartResponse in dataWrapperController');
+    console.error("Error in getChartResponse in dataWrapperController");
   }
 }
 
-export const updateAllCharts = async () => {
-  //check whether the file exists, which is happening in server
-  //need to get the titles from the json file
-  //DRY
-  getChartsInfo();
-  async function getChartsInfo() {
-    const chartsInfoPath = path.join(__dirname, '/chartsInfo.json');
-    try {
-      const info = await fs.promises.readFile(chartsInfoPath, 'utf-8');
-      const data = JSON.parse(info);
-      console.log('DATA: ', data);
-      // console.log(data.charts[0]['chartID']);
-      updateChart(data.charts[0]['chartID'], {}, csv3BarInspectionTypes);
-      updateChart(data.charts[1]['chartID'], {}, csv1PieUvNu);
-      updateChart(data.charts[2]['chartID'], {}, csv2PieHvS);
-    } catch (err) {
-      console.error('error at reading', err);
-    }
-  }
+//TODO: export updateChart to be used in routes
+async function updateChart(id: string, updates: object, newCsvData?: string) {
+  try {
+    const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${DWAPI_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updates),
+    });
+    if (!patchRes.ok)
+      throw new Error(`Metadata update failed: ${await patchRes.text()}`);
+    console.log("Metadata updated successfully.");
 
-  //TODO: export updateChart to be used in routes
-  //updates allows us to edit the chart title and other elements
-  async function updateChart(id: string, updates: object, newCsvData?: string) {
-    try {
-      const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
-        method: 'PATCH',
+    //inputting optional new data (this seems to replace previous data completely)
+    if (newCsvData) {
+      const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${DWAPI_KEY}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "text/csv",
         },
         body: JSON.stringify(updates),
       });
-      if (!patchRes.ok)
-        throw new Error(`Metadata update failed: ${await patchRes.text()}`);
-      console.log('Metadata updated successfully.');
-
-      //inputting optional new data (this seems to replace previous data completely)
-      if (newCsvData) {
-        const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${DWAPI_KEY}`,
-            'Content-Type': 'text/csv',
-          },
-          body: newCsvData,
-        });
-        if (!uploadRes.ok) throw new Error('Data upload failed');
-        console.log('New data uploaded successfully.');
-      }
+      if (!uploadRes.ok) throw new Error("Data upload failed");
+      console.log("New data uploaded successfully.");
+    }
 
       //Need to republish for public API viewing
 
@@ -244,10 +258,9 @@ export const updateAllCharts = async () => {
       const finalUrl =
         publishData.publicUrl || `https://datawrapper.dwcdn.net/${id}/`;
 
-      console.log(`Update Live! View here: ${finalUrl}`);
-      return finalUrl;
-    } catch (error) {
-      console.error('Error in updateChart in dataWrapperController');
-    }
+    console.log(`Update Live! View here: ${finalUrl}`);
+    return finalUrl;
+  } catch (error) {
+    console.error("Error in updateChart in dataWrapperController");
   }
 };
