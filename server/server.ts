@@ -1,29 +1,32 @@
 // Entry point: loads environment variables, mounts routes, and starts the Express server
 
-import "dotenv/config";
-import app from "./app.ts";
-import dolRoutes from "./routes/dolRoutes.ts";
-import dataWrapperRoutes from "./routes/dataWrapperRoutes.ts";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import 'dotenv/config';
+import app from './app.ts';
+import dolRoutes from './routes/dolRoutes.ts';
+import dataWrapperRoutes from './routes/dataWrapperRoutes.ts';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 //TODO: import updateAllCharts function
-import { fetchAndScrubData } from "./controllers/dolController.ts";
-import { buildCharts } from "./controllers/dataWrapperController.ts";
+import { fetchAndScrubData } from './controllers/dolController.ts';
+import {
+  buildCharts,
+  updateAllCharts,
+} from './controllers/dataWrapperController.ts';
 
 const PORT = process.env.PORT || 8888;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // setup for DOL routes
-app.use("/api", dolRoutes);
+app.use('/api', dolRoutes);
 
 // setup for Datawrapper routes
-app.use("/api/datawrapper", dataWrapperRoutes);
+app.use('/api/datawrapper', dataWrapperRoutes);
 
 app.listen(PORT, () => {
-  console.log("Server is running on port", PORT);
+  console.log('Server is running on port', PORT);
 });
 
 /*
@@ -32,7 +35,7 @@ check if chartInfo.json exists and calls appropriate functions depending
 */
 
 async function checkFile() {
-  const chartsInfoPath = path.join(__dirname, "chartsInfo.json");
+  const chartsInfoPath = path.join(__dirname, 'chartsInfo.json');
   try {
     let fileExists = fs.existsSync(chartsInfoPath);
     if (!fileExists) {
@@ -43,7 +46,8 @@ async function checkFile() {
     }
     // new conditional to check the most recent save date -> if more than 30 days, catch fetch and build functions again
     else {
-      const chartsInfo = fs.readFileSync(chartsInfoPath, "utf-8");
+      console.log('chartsInfo.json already exists');
+      const chartsInfo = fs.readFileSync(chartsInfoPath, 'utf-8');
       const charts = JSON.parse(chartsInfo);
       const lastFetch = new Date(charts.latestFetchDate);
       const dateToday = new Date();
@@ -54,6 +58,7 @@ async function checkFile() {
       if (daysDiff >= 30) {
         await fetchAndScrubData();
         //TODO: call updateAllCharts() here
+        updateAllCharts();
       }
     }
   } catch (err) {

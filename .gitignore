@@ -2,3 +2,4 @@ node_modules
 .env
 server/chartsInfo.json
 .dsstore
+.DS_STORE
