@@ -72,7 +72,7 @@ export const buildCharts = async () => {
   );
 
   async function buildDatawrapperChart(
-    title: string,
+    title: any,
     csvData: string | any,
     chartType: string = 'd3-pies',
   ) {
@@ -118,6 +118,11 @@ export const buildCharts = async () => {
         headers: { Authorization: `Bearer ${DWAPI_KEY}` },
       });
 
+      if (!publishRes.ok) {
+        const errorText = await publishRes.text();
+        throw new Error(`Publish failed: ${errorText}`);
+      }
+
       const publishData = await publishRes.json();
       const url: string = publishData.url;
       const publicUrl: string = publishData.publicUrl;
@@ -132,7 +137,7 @@ export const buildCharts = async () => {
         chartName: publishData.data.title,
         chartID: publishData.data.id,
         embedCode:
-          publishData.data.metadata.publish['embed-codes'][
+          publishData.data.metadata?.publish?.['embed-codes']?.[
             'embed-method-responsive'
           ],
         publishedDate: publishData.data.publishedAt,
