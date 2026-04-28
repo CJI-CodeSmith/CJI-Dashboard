@@ -44,7 +44,6 @@ export default function updateChartMetadata(chartType: string) {
     case "d3-multiple-pies":
     case "d3-multiple-donuts":
       return {
-        "convert-values-to-percentages": true,
         "value-label-format": "0%",
         "show-values": true,
         "custom-colors": piePalette,

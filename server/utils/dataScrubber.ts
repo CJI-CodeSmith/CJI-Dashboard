@@ -166,7 +166,6 @@ export const scrubData = (): void => {
   });
 
   // Helper function to flatten the array for proper csv conversion
-
   const formatCsv = (dataObj: Record<string, any>, valueHeader: string) => {
     return Object.entries(dataObj).map(([name, count]) => {
         return {
@@ -176,11 +175,23 @@ export const scrubData = (): void => {
     })
 }
 
+  // Converts counts to whole-number percentages so Datawrapper's "0%" label
+  // format displays "42%" rather than appending % to the raw count.
+  // Datawrapper does not multiply by 100 like D3's % format — it just rounds
+  // and appends %, so values must already be in the 0–100 range.
+  const formatCsvAsPercentages = (dataObj: Record<string, number>, valueHeader: string) => {
+    const total = Object.values(dataObj).reduce((sum, val) => sum + val, 0);
+    return Object.entries(dataObj).map(([name, count]) => ({
+        "Category": name,
+        [valueHeader]: total > 0 ? Math.round((count / total) * 100) : 0
+    }));
+}
+
 // Flatten required objects
 
-const unionData = formatCsv(stats.unionStatus, "Union Status")
-const focusData = formatCsv(stats.InspFocus, "Inspection Focus")
-const inspTypeData = formatCsv(stats.inspectionTypes, "Inspection Type")
+const unionData = formatCsvAsPercentages(stats.unionStatus, "Union Status")
+const focusData = formatCsvAsPercentages(stats.InspFocus, "Inspection Focus")
+const inspTypeData = formatCsvAsPercentages(stats.inspectionTypes, "Inspection Type")
 
 const summaryStats = {
     "Total Records": stats.totalRecords,

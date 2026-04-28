@@ -20,6 +20,7 @@ interface ChartsInfo {
   charts: Chart[];
 }
 
+
 export default function App() {
   const [chartsInfo, setChartsInfo] = useState<ChartsInfo | null>(null);
   const mockDescription =
