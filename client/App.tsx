@@ -77,7 +77,7 @@ export default function App() {
       <Header lastUpdated={latestFetch} />
       <main className="main">
         <StatRow>
-          <StatCard title="Data acquisition date" statistic="January 1, 2026" />
+          <StatCard title="Data acquisition date" statistic="January 1, 2021" />
           <StatCard
             title="Total Inspections"
             statistic={chartsInfo.totalRecords}
