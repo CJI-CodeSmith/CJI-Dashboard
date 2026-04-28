@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import StatCard from "./components/StatCard";
 import StatRow from "./components/StatRow";
 import ChartCard from "./components/ChartCard";
@@ -20,29 +20,35 @@ interface ChartsInfo {
   charts: Chart[];
 }
 
-export default function App() {
-  const [chartsInfo, setChartsInfo] = useState<ChartsInfo | null>(null);
-  const mockDescription =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sagittis metus id magna hendrerit aliquet. Vivamus sed nisl vel magna iaculis aliquet id quis neque. Sed vehicula, elit vel aliquam consectetur, augue ligula sagittis augue, eget dapibus ligula sem molestie nulla. Nullam aliquet nec est nec aliquet. Suspendisse tempus turpis et enim ultrices, at fermentum nisl laoreet. Quisque pretium ipsum velit, vel dictum lorem commodo in. Integer et arcu nec elit tincidunt finibus varius sed ipsum. Morbi mollis mauris vel dolor porttitor ultrices. Aenean erat velit, molestie quis sem in, mattis finibus mauris.";
+async function fetchCharts(): Promise<ChartsInfo> {
+  const SERVER_PORT = 8888;
+  const response = await fetch(
+    `http://localhost:${SERVER_PORT}/api/datawrapper/chart-info`,
+  );
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data: ChartsInfo = await response.json();
+  return data;
+}
 
-  useEffect(() => {
-    const SERVER_PORT = 8888;
-    const fetchCharts = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:${SERVER_PORT}/api/datawrapper/chart-info`,
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: ChartsInfo = await response.json();
-        setChartsInfo(data);
-      } catch (error) {
-        console.error("Error fetching charts info:", error);
-      }
-    };
-    fetchCharts();
-  }, []);
+export default function App() {
+  const {
+    data: chartsInfo,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["charts"],
+    queryFn: fetchCharts,
+    retry: 5,
+    retryDelay: 3000,
+  });
+
+  const chartDescriptions = [
+    " This analysis compares OSHA inspections to identify safety trends between organized and non-organized workplaces.",
+    " This analysis compares OSHA inspections to identify differences between health trends and safety trends.",
+    "This analysis compares various OSHA inspection types, including Complaint, Unprogrammed Related, Accident, Referral, Fatality/Catastrophe, Follow-Up, and Programmed inspections.",
+  ];
 
   if (!chartsInfo)
     return (
@@ -50,6 +56,11 @@ export default function App() {
         <div className="spinner" />
         <p>Loading…</p>
       </div>
+    );
+
+  if (error)
+    return (
+      <div>Error loading data. Check if server is running on port 8888.</div>
     );
 
   const latestFetch = new Date(chartsInfo.latestFetchDate).toLocaleDateString(
@@ -66,25 +77,26 @@ export default function App() {
       <Header lastUpdated={latestFetch} />
       <main className="main">
         <StatRow>
+          <StatCard title="Data acquisition date" statistic="January 1, 2026" />
           <StatCard
             title="Total Inspections"
             statistic={chartsInfo.totalRecords}
           />
         </StatRow>
         <ChartRow>
-          {chartsInfo.charts.slice(0, 2).map((chart) => (
+          {chartsInfo.charts.slice(0, 2).map((chart, i) => (
             <ChartCard
               key={chart.chartID}
-              description={mockDescription}
+              description={chartDescriptions[i] || "Description not available."}
               dataWrapperiFrame={chart.embedCode}
             />
           ))}
         </ChartRow>
         <ChartRow>
-          {chartsInfo.charts.slice(2).map((chart) => (
+          {chartsInfo.charts.slice(2).map((chart, i) => (
             <ChartCard
               key={chart.chartID}
-              description={mockDescription}
+              description={chartDescriptions[i + 2] || "Description not available."}
               dataWrapperiFrame={chart.embedCode}
             />
           ))}
