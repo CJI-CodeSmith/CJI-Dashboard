@@ -22,6 +22,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// [insp-exclusion] Letter codes listed here are dropped before scrubbing — see filter block in scrubData()
+const EXCLUDED_INSP_TYPES: ReadonlySet<string> = new Set(['H']);
+
 // Define replacement for inspection type letter codes
 const inspTypes: Record<string, string> = {
   A: 'Accident',
@@ -55,7 +58,7 @@ const cleanEstabName = (rawName: string): string => {
     .trim();
 };
 
-export const scrubData = (): void => {
+export const scrubData = (): { totalRecords: number } => {
   // JSON paths
 
   const rawFilePath = path.join(__dirname, '../data/Json/rawData.json');
@@ -89,12 +92,20 @@ export const scrubData = (): void => {
   // guard clause for if input file is not detected
   if (!fs.existsSync(rawFilePath)) {
     console.log('No raw data found for scrubbing');
-    return;
+    return { totalRecords: 0 };
   }
   // rawData = reading raw datafile - utf-8 turns it into a string.
   // records = parsing the string into an array of objects so we can map through it.
   const rawData = fs.readFileSync(rawFilePath, 'utf-8');
-  const records = JSON.parse(rawData);
+  // [insp-exclusion] Drop excluded insp_types before stats/cleanedRecords are built so totalRecords reflects retained set
+  const parsed = JSON.parse(rawData);
+  const records = parsed.filter(
+    (row: any) => !EXCLUDED_INSP_TYPES.has(row.insp_type),
+  );
+  console.log(
+    `Scrubbing ${records.length} of ${parsed.length} records ` +
+      `(excluded ${parsed.length - records.length} by insp_type)`,
+  );
 
   // a stats object to hold our summary data, set to 0 to increment while mapping.
   const stats = {
@@ -216,6 +227,8 @@ fs.writeFileSync(summaryFilePath, JSON.stringify(stats, null, 2));
     console.log('Wrote to summaryData.json')
 
     console.log("Data scrubbing Complete")
-    
-} 
+
+    // [insp-exclusion] Returned to fetchAndScrubData() so the API surfaces post-exclusion count, not raw fetch length
+    return { totalRecords: records.length };
+}
 
