@@ -7,6 +7,7 @@ import dataWrapperRoutes from './routes/dataWrapperRoutes.ts';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { Request, Response } from 'express';
 
 //TODO: import updateAllCharts function
 import { fetchAndScrubData } from './controllers/dolController.ts';
@@ -25,8 +26,21 @@ app.use('/api', dolRoutes);
 // setup for Datawrapper routes
 app.use('/api/datawrapper', dataWrapperRoutes);
 
-app.listen(PORT, () => {
-  console.log('Server is running on port', PORT);
+interface Error {
+  log?: string;
+  status?: number;
+  message?: any;
+}
+
+app.use((err: Error, _req: Request, res: Response) => {
+  const defaultErr = {
+    log: 'Express error handler caught unknown middleware error',
+    status: 500,
+    message: { err: 'An error occurred' },
+  };
+  const errorObj = Object.assign({}, defaultErr, err);
+  console.log(errorObj.log);
+  return res.status(errorObj.status).json(errorObj.message);
 });
 
 /*
@@ -34,7 +48,7 @@ initialization function:
 check if chartInfo.json exists and calls appropriate functions depending
 */
 
-async function checkFile() {
+export async function checkFile() {
   const chartsInfoPath = path.join(__dirname, 'chartsInfo.json');
   try {
     let fileExists = fs.existsSync(chartsInfoPath);
@@ -56,6 +70,7 @@ async function checkFile() {
       // get date diff in days(milliseconds->seconds->minutes->hours->days)
       const daysDiff = msDiff / (1000 * 60 * 60 * 24);
       if (daysDiff >= 30) {
+        console.log("It's been 30 days!");
         await fetchAndScrubData();
         await updateAllCharts();
       }
@@ -64,5 +79,13 @@ async function checkFile() {
     console.error(err);
   }
 }
-
-checkFile();
+(async () => {
+  try {
+    await checkFile();
+  } catch (err) {
+    console.error('Startup checkFile error:', err);
+  }
+  app.listen(PORT, () => {
+    console.log('Server is running on port', PORT)
+  })
+})();
