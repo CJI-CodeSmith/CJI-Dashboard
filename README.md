@@ -87,12 +87,12 @@ The application utilizes a time-based caching  to minimize unnecessary external 
 
 ## Limitations
 
-* **Prototype scope:** Built as a time-boxed MVP for a Codesmith Future Code partnership — not hardened for production use.
+* **Prototype scope:** Built as a time-boxed MVP for a Codesmith Future Code partnership, not hardened for production use.
 * **Industry-specific:** The DOL query is hardcoded to NAICS code `518210` (data centers). Other industries are out of scope without code changes.
-* **Bounded historical window:** Ingestion is limited to roughly the last 5 years of OSHA inspection records.
+* **Bounded historical window:** Data fetch is hard-coded for any inspections on or after January 1, 2021
 * **Cache staleness:** The 30-day refresh cycle means the dashboard can surface data up to a month behind the DOL source.
 * **No authentication:** The backend API is unauthenticated; intended for local/internal use only.
-* **Third-party limits:** Datawrapper free-tier rate and quota limits apply to chart creation and publishing.
+* **Third-party limits:** Datawrapper & DOL can apply rate limits to chart creation & data fetching respectively. 
 
 ## Scalability
 
