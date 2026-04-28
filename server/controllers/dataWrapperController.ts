@@ -65,7 +65,7 @@ const summaryDataPath = path.join(
 export const buildCharts = async () => {
   const data = fs.readFileSync(summaryDataPath, "utf-8");
   const records = JSON.parse(data);
-  console.log(records);
+  // console.log(records);
   // Reset before building so repeated calls don't accumulate
   chartsInfo.charts = [];
   chartsInfo.latestFetchDate = Date.now();
@@ -122,7 +122,7 @@ export const buildCharts = async () => {
       },
       body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into play, our donuts etc
     });
-    console.log("made it to createRes");
+    // console.log("made it to createRes");
 
     //Checking if the response is successful
     if (!createRes.ok) {
@@ -163,7 +163,7 @@ export const buildCharts = async () => {
       });
       if (!metaRes.ok)
         throw new Error(`Metadata patch failed: ${await metaRes.text()}`);
-      console.log("Percentage and color styling metadata applied.");
+     
     }
 
     //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
@@ -223,7 +223,7 @@ export const updateAllCharts = async () => {
     try {
       const info = await fs.promises.readFile(chartsInfoPath, "utf-8");
       const data = JSON.parse(info);
-      console.log("DATA: ", data);
+      // console.log("DATA: ", data);
       // console.log(data.charts[0]['chartID']);
 
       //* read the updated csv data from server startup
