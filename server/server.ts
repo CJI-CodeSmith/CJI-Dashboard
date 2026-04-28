@@ -51,7 +51,6 @@ check if chartInfo.json exists and calls appropriate functions depending
 export async function checkFile() {
   const chartsInfoPath = path.join(__dirname, 'chartsInfo.json');
   try {
-    console.log('trying');
     let fileExists = fs.existsSync(chartsInfoPath);
     if (!fileExists) {
       await fetchAndScrubData();

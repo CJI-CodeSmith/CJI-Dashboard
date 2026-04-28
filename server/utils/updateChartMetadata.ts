@@ -1,4 +1,8 @@
-export default function updateChartMetadata(chartType: string) {
+export default function updateChartMetadata(
+  chartType: string,
+  categories: string[] = [],
+  paletteVariant: number = 0,
+) {
   const piePalette = [
     "#4A7C9E",
     "#5A9E7C",
@@ -10,6 +14,19 @@ export default function updateChartMetadata(chartType: string) {
     "#6E9E4A",
     "#4A6E9E",
     "#9E6E4A",
+  ];
+
+  const piePalette2 = [
+    "#E07B54",
+    "#E0B454",
+    "#C45C8A",
+    "#7BC4A0",
+    "#C47B5C",
+    "#A05CE0",
+    "#E0545C",
+    "#54A0E0",
+    "#8AC45C",
+    "#E0D454",
   ];
 
   const barPalette = [
@@ -38,6 +55,12 @@ export default function updateChartMetadata(chartType: string) {
     "#4A6E9E",
   ];
 
+  //Datawrapper expects an object that maps each category name to a color, not an array
+  const buildColorMap = (palette: string[]) =>
+    Object.fromEntries(
+      categories.map((cat, i) => [cat, palette[i % palette.length]]),
+    );
+
   switch (chartType) {
     case "d3-pies":
     case "d3-donuts":
@@ -46,21 +69,23 @@ export default function updateChartMetadata(chartType: string) {
       return {
         "value-label-format": "0%",
         "show-values": true,
-        "custom-colors": piePalette,
+        "custom-colors": buildColorMap(
+          paletteVariant === 1 ? piePalette2 : piePalette,
+        ),
       };
     case "d3-bars":
       return {
         "value-label-visibility": "show",
         "value-label-format": "0%",
         "value-label-mode": "right",
-        "custom-colors": barPalette,
+        "custom-colors": buildColorMap(barPalette),
       };
     case "d3-bars-stacked":
       return {
         "stack-percentages": true,
         "value-label-visibility": "show",
         "value-label-format": "0%",
-        "custom-colors": stackedBarPalette,
+        "custom-colors": buildColorMap(stackedBarPalette),
       };
     default:
       return null;

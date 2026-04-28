@@ -2,7 +2,7 @@
 // TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
 
 //TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
-import 'dotenv/config';
+import "dotenv/config";
 
 import { Request, Response } from "express";
 import fs from "fs";
@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import updateChartMetadata from "../utils/updateChartMetadata.ts";
-import { checkFile } from '../server.ts';
+import { checkFile } from "../server.ts";
 
 const DWAPI_KEY = process.env.DWAPI_KEY;
 
@@ -39,7 +39,7 @@ const chartsInfo: ChartsInfo = {
 export const getChartsInfo = async (_req: Request, res: Response) => {
   const chartsInfoPath = path.join(__dirname, "../chartsInfo.json");
   try {
-    const info =  fs.readFileSync(chartsInfoPath, "utf-8");
+    const info = fs.readFileSync(chartsInfoPath, "utf-8");
     return res.status(200).json(JSON.parse(info));
   } catch (err) {
     return res.status(500).json({ error: "Failed to read chartsInfo.json" });
@@ -57,10 +57,7 @@ const inspTypeCsvPath = path.join(
   __dirname,
   "../data/visualization/inspType.csv",
 );
-const summaryDataPath = path.join(
-  __dirname,
-  "../data/Json/summaryData.json",
-)
+const summaryDataPath = path.join(__dirname, "../data/Json/summaryData.json");
 
 export const buildCharts = async () => {
   const data = fs.readFileSync(summaryDataPath, "utf-8");
@@ -95,6 +92,8 @@ export const buildCharts = async () => {
     await buildDatawrapperChart(
       "Health vs. Safety Inspection Count",
       csv2PieHvS,
+      "d3-pies",
+      1,
     );
     await buildDatawrapperChart(
       "Inspection Types",
@@ -112,6 +111,7 @@ export const buildCharts = async () => {
     title: any,
     csvData: string | any,
     chartType: string = "d3-pies",
+    paletteVariant: number = 0,
   ) {
     //charts endpoint for creating
     const createRes = await fetch(`${BASE_URL}/charts`, {
@@ -148,8 +148,24 @@ export const buildCharts = async () => {
     if (!uploadRes.ok) throw new Error("Upload failed");
     console.log("Data uploaded successfully.");
 
+    //extract csv category names for updating chart metadata
+    const getCategories = (csv: string): string[] =>
+      csv
+        .trim()
+        .split("\n")
+        .slice(1)
+        .map((row) => row.split(",")[0]);
+
+    const categories = getCategories(csvData);
+
+    //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
+    const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${DWAPI_KEY}` },
+    });
+
     //Patch chart metadata before publish (make charts have percentages and different colors)
-    const chartMetadata = updateChartMetadata(chartType);
+    const chartMetadata = updateChartMetadata(chartType, categories, paletteVariant);
     if (chartMetadata) {
       const metaRes = await fetch(`${BASE_URL}/charts/${chartId}`, {
         method: "PATCH",
@@ -166,18 +182,18 @@ export const buildCharts = async () => {
       console.log("Percentage and color styling metadata applied.");
     }
 
-    //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
-    const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
+    // Second publish to make the color metadata go live
+    const republishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
       method: "POST",
       headers: { Authorization: `Bearer ${DWAPI_KEY}` },
     });
 
-    if (!publishRes.ok) {
-      const errorText = await publishRes.text();
-      throw new Error(`Publish failed: ${errorText}`);
+    if (!republishRes.ok) {
+      const errorText = await republishRes.text();
+      throw new Error(`Republish failed: ${errorText}`);
     }
 
-    const publishData = await publishRes.json();
+    const publishData = await republishRes.json();
     const url: string = publishData.url;
     const publicUrl: string = publishData.publicUrl;
 
