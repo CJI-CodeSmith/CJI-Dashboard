@@ -15,7 +15,8 @@ interface Chart {
 }
 
 interface ChartsInfo {
-  latestFetchDate: number;
+  latestFetchDate: number | string;
+  totalRecords: number;
   charts: Chart[];
 }
 
@@ -67,7 +68,7 @@ export default function App() {
         <StatRow>
           <StatCard
             title="Total Inspections"
-            statistic={97}
+            statistic={chartsInfo.totalRecords}
           />
         </StatRow>
         <ChartRow>
