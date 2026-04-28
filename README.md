@@ -48,7 +48,7 @@ DOL_API_KEY=your_dol_api_key_here
 DWAPI_KEY=your_datawrapper_token_here
 
 # Local Server Port (server defaults to 8888 if unset)
-PORT=5000
+PORT=8888
 ```
 
 ## Project Structure
