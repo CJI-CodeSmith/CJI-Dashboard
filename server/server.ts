@@ -9,7 +9,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Request, Response } from 'express';
 
-//TODO: import updateAllCharts function
 import { fetchAndScrubData } from './controllers/dolController.ts';
 import {
   buildCharts,

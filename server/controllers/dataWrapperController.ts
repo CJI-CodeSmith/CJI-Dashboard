@@ -1,7 +1,5 @@
 // Fetches data from the Data Wrapper API and returns it for use by the dashboard
-// TODO: import express and convert functions into express route handlers  - for each function params must be:( req: Request, res: Response) and the currently passed in params have to be pulled from req.params or req.body, then return res.status(200).json(...) instead of returning the actual values
 
-//TODO: all catch blocks should call res.status(500).json({ error plus whatever info })
 import "dotenv/config";
 
 import { Request, Response } from "express";
@@ -35,7 +33,7 @@ const chartsInfo: ChartsInfo = {
   latestFetchDate: Date.now(),
   totalRecords: 0,
   charts: [],
-}; //need to figure out this type for an array of ChartsInfo
+}; 
 export const getChartsInfo = async (_req: Request, res: Response) => {
   const chartsInfoPath = path.join(__dirname, "../chartsInfo.json");
   try {
@@ -62,23 +60,11 @@ const summaryDataPath = path.join(__dirname, "../data/Json/summaryData.json");
 export const buildCharts = async () => {
   const data = fs.readFileSync(summaryDataPath, "utf-8");
   const records = JSON.parse(data);
-  // console.log(records);
-  // Reset before building so repeated calls don't accumulate
+  // Resets chartsInfo.json before building so repeated calls don't accumulate additional entries within the file.
   chartsInfo.charts = [];
   chartsInfo.latestFetchDate = Date.now();
   chartsInfo.totalRecords = records.totalRecords;
-  // const unionCsvPath = path.join(
-  //   __dirname,
-  //   "../data/visualization/unionStatus.csv",
-  // );
-  // const inspFocusCsvPath = path.join(
-  //   __dirname,
-  //   "../data/visualization/inspFocus.csv",
-  // );
-  // const inspTypeCsvPath = path.join(
-  //   __dirname,
-  //   "../data/visualization/inspType.csv",
-  // );
+
 
   const csv1PieUvNu = fs.readFileSync(unionCsvPath, "utf-8");
   const csv2PieHvS = fs.readFileSync(inspFocusCsvPath, "utf-8");
@@ -113,18 +99,16 @@ export const buildCharts = async () => {
     chartType: string = "d3-pies",
     paletteVariant: number = 0,
   ) {
-    //charts endpoint for creating
+    //Endpoint for chart creation
     const createRes = await fetch(`${BASE_URL}/charts`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${DWAPI_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into play, our donuts etc
+      body: JSON.stringify({ title, type: `${chartType}` }), //here is where the different chart types come into play, our donuts etc.
     });
-    // console.log("made it to createRes");
 
-    //Checking if the response is successful
     if (!createRes.ok) {
       const errorText = await createRes.text();
       console.log("createRes not okay");
@@ -134,8 +118,7 @@ export const buildCharts = async () => {
     const chartData = await createRes.json();
     const chartId = chartData.id;
     console.log(`Created chart with ID#: ${chartId}`);
-    //TODO CREATE INTERFACES FOR DIFF CHARTS AND PUSH TO ARRAY
-    //UPLOADING THE CSV DATA
+    //Uploads the csv data
     const uploadRes = await fetch(`${BASE_URL}/charts/${chartId}/data`, {
       method: "PUT",
       headers: {
@@ -148,7 +131,7 @@ export const buildCharts = async () => {
     if (!uploadRes.ok) throw new Error("Upload failed");
     console.log("Data uploaded successfully.");
 
-    //extract csv category names for updating chart metadata
+    //Extracts csv category names for updating chart metadata
     const getCategories = (csv: string): string[] =>
       csv
         .trim()
@@ -158,7 +141,6 @@ export const buildCharts = async () => {
 
     const categories = getCategories(csvData);
 
-    //PUBLISHING THE NEW CHART because we need to publish in order to see the adjusted data
     const publishRes = await fetch(`${BASE_URL}/charts/${chartId}/publish`, {
       method: "POST",
       headers: { Authorization: `Bearer ${DWAPI_KEY}` },
@@ -214,35 +196,21 @@ export const buildCharts = async () => {
     const finalUrl = publicUrl || url;
 
     console.log(`Chart is live at: ${finalUrl}`);
-    //might not need to return this, but instead return the other obj
     return finalUrl;
   }
-  //* We commented this out to check whether the synchronous fs.writeFileSync in the above try catch block will work independently.
-  //writing the chartsInfo to a json object
-  // const chartsInfoJSON = JSON.stringify(chartsInfo);
-  // fs.writeFile("chartsInfo.json", chartsInfoJSON, (err) => {
-  //   if (err) {
-  //     console.error("Error writing chartsInfo.json: ", err);
-  //   } else {
-  //     console.log(`chartsInfoJSON successfully created.`);
-  //   }
-  // });
 };
 
 export const updateAllCharts = async () => {
-  //check whether the file exists, which is happening in server
-  //need to get the titles from the json file
-  //DRY
+
   await getChartsInfo();
   async function getChartsInfo() {
     const chartsInfoPath = path.join(__dirname, "../chartsInfo.json");
     try {
       const info = await fs.promises.readFile(chartsInfoPath, "utf-8");
       const data = JSON.parse(info);
-      // console.log("DATA: ", data);
-      // console.log(data.charts[0]['chartID']);
 
-      //* read the updated csv data from server startup
+
+      //Read the updated csv data from server startup.
       const freshCsv1 = fs.readFileSync(unionCsvPath, "utf-8");
       const freshCsv2 = fs.readFileSync(inspFocusCsvPath, "utf-8");
       const freshCsv3 = fs.readFileSync(inspTypeCsvPath, "utf-8");
@@ -260,8 +228,7 @@ export const updateAllCharts = async () => {
     }
   }
 
-  //TODO: export updateChart to be used in routes
-  //updates allows us to edit the chart title and other elements
+  //Updates allows us to edit the chart title and other elements via the metadata.
   async function updateChart(id: string, updates: object, newCsvData?: string) {
     try {
       const patchRes = await fetch(`${BASE_URL}/charts/${id}`, {
@@ -276,7 +243,7 @@ export const updateAllCharts = async () => {
         throw new Error(`Metadata update failed: ${await patchRes.text()}`);
       console.log("Metadata updated successfully.");
 
-      //inputting optional new data (this seems to replace previous data completely)
+      //Updating optional new data, which replaces previous data completely.
       if (newCsvData) {
         const uploadRes = await fetch(`${BASE_URL}/charts/${id}/data`, {
           method: "PUT",

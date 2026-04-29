@@ -28,13 +28,6 @@ interface DOLResponse {
   }>;
 }
 
-//variable to get the set the year to start with
-// const startYear = new Date();
-// // setFullYear method passing in (current year - 5) to start from 5 years ago
-// startYear.setFullYear(startYear.getFullYear() - 5);
-// // convert startYear to string for passing in to fetch request
-// const dateString = startYear.toISOString().split(".")[0];
-
 // Pure async function to fetch data from DOL API, write raw data to file, and scrubs it. It's isolated from express, there is no req or res
 export const fetchAndScrubData = async (): Promise<{
   totalRecords: number;
@@ -78,7 +71,7 @@ export const fetchAndScrubData = async (): Promise<{
   fs.writeFileSync(rawFilePath, JSON.stringify(records, null, 2));
   console.log('Fetched data has been written into rawData.json');
 
-  // Invoke data scrubbing helper function here so each retrieval is automatically scrubbed and ready for use?
+  // Invoke data scrubbing helper function here so each retrieval is automatically scrubbed and ready for use.
   scrubData();
   return { totalRecords: records.length };
 };
