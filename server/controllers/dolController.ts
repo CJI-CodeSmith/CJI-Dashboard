@@ -82,6 +82,17 @@ export const fetchAndScrubData = async (): Promise<{
   scrubData();
   return { totalRecords: records.length };
 };
+
+//csv download button functionality
+export const downloadCsv = (req: Request, res: Response): void => {
+  const csvPath = path.join(__dirname, '../data/general_csv/csvData.csv');
+  if (!fs.existsSync(csvPath)) {
+    res.status(404).json({ error: 'CSV not found. Fetch OSHA data and create the general CSV.' });
+    return;
+  }
+  res.download(csvPath, 'inspections_data.csv');
+};
+
 // Express route handler: calls runOshaFetch using the totalRecords from the fetch to send a response to the client. This keeps the function agnostic of express.
 export const fetchOshaData = async (req: Request, res: Response) => {
   try {
