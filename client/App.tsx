@@ -21,10 +21,7 @@ interface ChartsInfo {
 }
 
 async function fetchCharts(): Promise<ChartsInfo> {
-  const SERVER_PORT = 8888;
-  const response = await fetch(
-    `http://localhost:${SERVER_PORT}/api/datawrapper/chart-info`,
-  );
+  const response = await fetch('/api/datawrapper/chart-info');
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -60,7 +57,7 @@ export default function App() {
 
   if (error)
     return (
-      <div>Error loading data. Check if server is running on port 8888.</div>
+      <div>Error loading data. Check if the server is running.</div>
     );
 
   const latestFetch = new Date(chartsInfo.latestFetchDate).toLocaleDateString(

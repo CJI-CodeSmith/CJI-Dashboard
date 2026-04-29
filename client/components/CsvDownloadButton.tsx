@@ -1,3 +1,7 @@
 export default function CsvDownloadButton() {
-  return <button className="csv-download-button">Download CSV</button>;
+  return (
+    <a href="/api/download-csv" download className="csv-download-button">
+      Download CSV
+    </a>
+  );
 }
