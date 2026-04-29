@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-The OSHA Data Dashboard is a prototype web application and data pipeline designed to support research for the **Cornell Climate Jobs Institute**. Its primary objective is to analyze and surface patterns in workplace safety, union status, and inspection activity within the United States data center industry. 
+The OSHA Data Dashboard is a prototype web application and data pipeline designed to support research for the **Cornell Climate Jobs Institute**. Its primary objective is to analyze and find patterns in workplace safety, union status, and inspection activity within the United States data center industry. 
 
 This project serves as an MVP to validate a programmatic data-to-visualization workflow. It automates the extraction of inspection records from the Department of Labor API, specifically targeting data centers (NAICS code 518210). The pipeline cleans and transforms raw data before utilizing the Datawrapper API to dynamically generate charts. These visualizations are then presented through a React-based frontend dashboard.
 
@@ -22,9 +22,10 @@ This project serves as an MVP to validate a programmatic data-to-visualization w
 
 **Frontend**
 
-* **React:** UI construction utilizing core state hooks and `useEffect` for data synchronization.
+* **React:** UI construction utilizing core state hooks and `useQuery` for data synchronization.
 * **Vite:** Frontend build tool and bundler used for rapid development and optimized production builds.
 * **CSS:** Styling language for designing Dashboard user interface.
+* **TanStack:** Client checks to see if server is live before fetching to prevent software race conditions
 
 **Backend & Data Processing**
 
@@ -38,14 +39,20 @@ This project serves as an MVP to validate a programmatic data-to-visualization w
 
 ## Setup Instructions
 
-To run this project locally, you will need to configure your environment variables. Create a `.env` file inside the `server/` directory and add the following keys:
+The application requires API keys for the Department of Labor and Datawrapper, which are loaded from a `.env` file inside the `server/` directory. Create the file:
+
+```bash
+touch server/.env
+```
+
+Then open `server/.env` and paste the following, replacing the bracketed placeholders with your own keys:
 
 ```env
 # Department of Labor API Key (from data.dol.gov)
-DOL_API_KEY=your_dol_api_key_here
+DOL_API_KEY=[INSERT API KEY HERE]
 
 # Datawrapper Personal Access Token
-DWAPI_KEY=your_datawrapper_token_here
+DWAPI_KEY=[INSERT API KEY HERE]
 
 # Local Server Port (server defaults to 8888 if unset)
 PORT=8888
@@ -55,15 +62,28 @@ PORT=8888
 
 ```
 CJI-Dashboard/
-├── client/   # React + Vite frontend (dashboard UI)
-└── server/   # Node.js + TypeScript backend (DOL fetch, transform, Datawrapper publishing)
+├── client/                  # React + Vite frontend (dashboard UI)
+│   ├── components/          # Reusable React UI components (cards, rows, header, footer)
+│   └── public/              # Static assets served by Vite
+└── server/                  # Node.js + TypeScript backend
+    ├── controllers/         # DOL fetch + Datawrapper publishing logic
+    ├── data/                # Generated/cached data artifacts
+    │   ├── Json/
+    │   ├── general_csv/
+    │   └── visualization/
+    ├── routes/              # Express route definitions
+    └── utils/               # Shared utilities (data scrubber, chart metadata writer)
 ```
 
 ## How to Run
 
+Once setup is complete and all packages have been installed, you can start both the server and the client together with a single command:
+
+```bash
+npm start
 ```
-Add Npm run concurrently to simulaneously start front & back end
-```
+
+This runs `concurrently` to launch the Node.js backend (default `http://localhost:8888`) and the Vite dev server. Once the client is live, open **http://localhost:5173** in your browser to see the dashboard.
 
 
 ## Architecture Summary
@@ -94,6 +114,9 @@ The application utilizes a time-based caching  to minimize unnecessary external 
 * **No authentication:** The backend API is unauthenticated; intended for local/internal use only.
 * **Third-party limits:** Datawrapper & DOL can apply rate limits to chart creation & data fetching respectively. 
 
-## Scalability
+## Next Steps
 
 ## Screenshots
+Here is a screenshot of the dashboard
+
+<img src='assets/dashboard.png' alt='Dashboard Image' width='750'>
