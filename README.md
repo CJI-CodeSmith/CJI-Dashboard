@@ -1,18 +1,18 @@
-# Cornell Climate Jobs Institute - OSHA Data Dashboard
+# Cornell Climate Jobs Institute - Data Center Inspection Dashboard (DCID)
 
-> **Disclaimer:** This prototype was built as part of a client-student partnership through Codesmith’s Future Code program. It explores solutions to a real-world case study provided by an external partner. This work does not represent employment or contracting with the partner. All intellectual property belongs to the partner. This is a time-boxed MVP and not a production system.
+> **Disclaimer:** This prototype was built over 4 weeks as part of a client-student partnership through Codesmith’s Future Code program. It explores solutions to a real-world case study provided by an external partner. This work does not represent employment or contracting with the partner. All intellectual property belongs to the partner. This is a time-boxed MVP and not a production system.
 
 ## Project Overview
 
-The OSHA Data Dashboard is a prototype web application and data pipeline designed to support research for the **Cornell Climate Jobs Institute**. Its primary objective is to analyze and find patterns in workplace safety, union status, and inspection activity within the United States data center industry. 
+The DCID is a prototype web application and data pipeline designed to support research for the **Cornell Climate Jobs Institute**. Its primary objective is to analyze and find patterns in workplace safety, union status, and inspection activity within the United States data center industry. 
 
 This project serves as an MVP to validate a programmatic data-to-visualization workflow. It automates the extraction of inspection records from the Department of Labor API, specifically targeting data centers (NAICS code 518210). The pipeline cleans and transforms raw data before utilizing the Datawrapper API to dynamically generate charts. These visualizations are then presented through a React-based frontend dashboard.
 
 **Key Objectives:**
 
-* **Automated Ingestion:** Programmatically fetch and filter 5 years of historical OSHA inspection data.
+* **Automated Ingestion:** Programmatically fetch and filter OSHA inspection data from a fixed start date of January 1, 2021.
 * **Data Transformation:** Clean and aggregate raw government data into structured formats suitable for charting.
-* **Insight Generation:** Visualize critical industry metrics, including safety versus health inspection breakdowns and comparisons of inspection patterns across union and non-union facilities.
+* **Insight Generation:** Visualize critical industry metrics, including safety vs health inspection focus, union vs non-union status, and inspection type distributions across US data center facilities.
 
 ## Tech Stack
 
@@ -25,27 +25,68 @@ This project serves as an MVP to validate a programmatic data-to-visualization w
 * **React:** UI construction utilizing core state hooks and `useQuery` for data synchronization.
 * **Vite:** Frontend build tool and bundler used for rapid development and optimized production builds.
 * **CSS:** Styling language for designing Dashboard user interface.
-* **TanStack:** Client checks to see if server is live before fetching to prevent software race conditions
+* **TanStack:** Client checks to see if server is live before fetching to prevent software race conditions.
 
 **Backend & Data Processing**
 
 * **Node.js:** Server environment handling secure external API requests, data cleaning, and pipeline orchestration.
-* **json-2-csv:** Data transformation utility used to convert processed JSON inspection data into the CSV format required by datawrapper
+* **json-2-csv:** Data transformation utility used to convert processed JSON inspection data into the CSV format required by Datawrapper.
 
 **APIs & Visualization**
 
+
+
 * **Department of Labor (DOL) API:** Primary data source for fetching raw OSHA inspection records.
+```
+Inspection Dataset: https://data.dol.gov/datasets/10313
+```
 * **Datawrapper API:** Utilized on the backend for programmatic dataset uploading, chart generation, and publishing.
+```
+API Reference Documentation: https://developer.datawrapper.de/reference/introduction
+```
 
 ## Setup Instructions
 
-The application requires API keys for the Department of Labor and Datawrapper, which are loaded from a `.env` file inside the `server/` directory. Create the file:
+The application requires API keys for the Department of Labor and Datawrapper
+
+* **DOL API**
+
+*Create your account and generate your API token for use in the link below*
+
+```
+Register for Account: https://data.dol.gov/registration
+```
+
+* **Datawrapper**
+
+*Create your account and generate your API key*
+
+```
+Register for Account: https://app.datawrapper.de/signin
+```
+*Follow the screenshot guide below to create and configure your API Key*
+
+*Navigate to account page after login*
+
+<img src='assets/datawrapper-1.png' alt='Dashboard Image' width='350'>
+
+*Find to API Tokens*
+
+<img src='assets/datawrapper-2.png' alt='Dashboard Image' width='350'>
+
+*Configure Token Permissions*
+
+<img src='assets/datawrapper-3.png' alt='Dashboard Image' width='350'>
+
+
+
+Once the keys are generated they are loaded from a `.env` file inside the `server/` directory. To Create the file paste the following code in your terminal:
 
 ```bash
 touch server/.env
 ```
 
-Then open `server/.env` and paste the following, replacing the bracketed placeholders with your own keys:
+*Then open `server/.env` from your file explorer in VS Code and paste the following, replacing the bracketed placeholders (Including the brackets) with your own API keys:*
 
 ```env
 # Department of Labor API Key (from data.dol.gov)
@@ -62,20 +103,27 @@ PORT=8888
 
 ```
 CJI-Dashboard/
+├── assets/                  # Screenshots used in documentation                 
 ├── client/                  # React + Vite frontend (dashboard UI)
 │   ├── components/          # Reusable React UI components (cards, rows, header, footer)
 │   └── public/              # Static assets served by Vite
 └── server/                  # Node.js + TypeScript backend
     ├── controllers/         # DOL fetch + Datawrapper publishing logic
     ├── data/                # Generated/cached data artifacts
-    │   ├── Json/
-    │   ├── general_csv/
-    │   └── visualization/
+    │   ├── Json/            # Json formatted files generated throughout data processing
+    │   ├── general_csv/     # Overall CSV files generated after data processing
+    │   └── visualization/   # Specific CSV files programatically converted to datawrapper appropriate formats
     ├── routes/              # Express route definitions
     └── utils/               # Shared utilities (data scrubber, chart metadata writer)
 ```
 
 ## How to Run
+
+To install all necessary dependencies run the following command in your terminal:
+
+```
+npm run install:all
+```
 
 Once setup is complete and all packages have been installed, you can start both the server and the client together with a single command:
 
@@ -88,21 +136,21 @@ This runs `concurrently` to launch the Node.js backend (default `http://localhos
 
 ## Architecture Summary
 
-> **Status (WIP):** The flow below describes the target design. Today, the 30-day cache refresh path and the dynamic handoff of chart IDs to the frontend are still being wired up — the React app currently renders hardcoded Datawrapper embeds rather than IDs returned by the backend.
-
-The application utilizes a time-based caching  to minimize unnecessary external API calls, executing data transformations and chart generation only when required.
+> **Status (Prototype):** The DCID uses a time-based caching strategy to minimize unnecessary external API calls, executing data transformations and chart generation only when required.
 
 **Data Flow:**
 
+<img src='assets/dataflow.png' alt='Dashboard Image' width='750'>
+
 1.  **Initialization & Cache Check:** On server startup, the backend checks for the existence of `chartsInfo.json`, a local file containing chart metadata and the last data fetch timestamp. If the file exists and the last fetch occurred within the last 30 days, the server bypasses the data pipeline and serves the existing charts to the frontend.
 2.  **Data Extraction (DOL API):** If `chartsInfo.json` is missing, or if the 30-day cache has expired, the Node.js server queries the Department of Labor (DOL) API for the latest inspection dataset.
-3.  **Cleaning & Transformation:** The raw JSON payload is processed to decode internal letter codes into human-readable language.
+3.  **Cleaning & Transformation:** The raw JSON payload is processed through a scrubbing pipeline that decodes internal letter codes into human-readable language, combines individual address fields into a single full address for future mapping capability, excludes planned inspections from the dataset, and handles any missing or unknown field values.
 4.  **Aggregation:** The transformed JSON is mapped and tallied to calculate specific metrics, resulting in three distinct datasets:
     * Union vs. Non-Union facilities
     * Safety vs. Health inspection focus
     * Inspection type breakdowns
 5.  **CSV Generation & Formatting:** The three aggregated datasets are converted into individual CSV files. These files are programmatically flattened to match Datawrapper's strict formatting requirements.
-6.  **Chart Creation & Publishing (Datawrapper API):** A single function sequentially transmits the three CSV files to the Datawrapper API. The API generates and publishes them.
+6.  **Chart Creation & Publishing (Datawrapper API):** For each of the three charts, the server executes a sequence of API calls to Datawrapper: the chart is created and assigned an ID, the corresponding CSV is uploaded, an initial publish is triggered, styling and metadata are patched to apply colors and percentage formatting, and the chart is republished so the final configuration goes live. This two-pass publish sequence is required because Datawrapper does not apply metadata patches until after the first publish.
 7.  **Metadata Storage:** Upon successful publishing, the chart IDs and the new fetch timestamp are saved into the `chartsInfo.json` array. This metadata is then passed to the React frontend to render the embed codes and resets the 30-day update cycle.
 
 ## Limitations
@@ -116,7 +164,10 @@ The application utilizes a time-based caching  to minimize unnecessary external 
 
 ## Next Steps
 
+* **Database connection:** The first suggestion is to move data to a database for persistent storage. Right now, there is no persistent place to store the data we're retrieving or what's being sent to Datawrapper. A database gives the system one centralized place to store incoming OSHA data, chart configurations, and publish history. 
+* **Class constructor:** The second recommendation is abstracting the Datawrapper chart creation process into a dedicated class. Right now, generating a chart requires a series of network requests, and that logic is spread across the backend. Wrapping that into a ChartService class means any developer working on this in the future doesn't need to understand the full Datawrapper handshake just to create or update a chart. They call a method, and the class handles the rest. It also means if the team ever wants to move away from Datawrapper entirely, that change is isolated to one place rather than scattered throughout the codebase.
+
 ## Screenshots
-Here is a screenshot of the dashboard
+Here is a screenshot of the dashboard:
 
 <img src='assets/dashboard.png' alt='Dashboard Image' width='750'>
